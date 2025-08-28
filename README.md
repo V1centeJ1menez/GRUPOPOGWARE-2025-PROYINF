@@ -1,6 +1,4 @@
-> Notar que **X** corresponde al número del grupo asignado.
-
-# Grupo 03 - Pogware 🦎
+# Grupo 03 - Pogware🦎
 
 Este es el repositorio del *Grupo 3*, cuyos integrantes son:
 
