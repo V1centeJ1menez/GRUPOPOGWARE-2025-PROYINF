@@ -1,6 +1,6 @@
 > Notar que **X** corresponde al número del grupo asignado.
 
-# Grupo 03
+# Grupo 03 - Pogware 🦎
 
 Este es el repositorio del *Grupo 3*, cuyos integrantes son:
 
@@ -19,7 +19,6 @@ Puede acceder a la Wiki mediante el siguiente [enlace](https://github.com/V1cent
 
 ## Videos
 
-> Reemplazar con los enlaces correspondientes
 
 * [Video presentación cliente](https://www.youtube.com/watch?v=uc8n8NwmRCM)
 
