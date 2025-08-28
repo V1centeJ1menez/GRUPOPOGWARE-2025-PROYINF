@@ -15,16 +15,23 @@ Este es el repositorio del *Grupo 3*, cuyos integrantes son:
 
 > Obtener enlace desde el home de la wiki del repo.
 
-Puede acceder a la Wiki mediante el siguiente [enlace](https://github.com/V1centeJ1menez/GRUPOPOGWARE-2025-PROYINF)
+Puede acceder a la Wiki mediante el siguiente [enlace](https://github.com/V1centeJ1menez/GRUPOPOGWARE-2025-PROYINF/wiki)
 
 ## Videos
 
 > Reemplazar con los enlaces correspondientes
 
-* [Video presentación cliente](https://www.youtube.com)
-* [Video presentación avance 1](https://www.youtube.com/)
-* Etc ...
+* [Video presentación cliente](https://www.youtube.com/watch?v=uc8n8NwmRCM)
+
 
 ## Aspectos técnicos relevantes
 
-_Todo aspecto relevante cuando para poder usar el proyecto o consideraciones del proyecto base a ser entregado_
+- El proyecto se basa en la digitalización completa del proceso de préstamos de consumo.
+- Se contempla la integración con servicios externos como:
+  - Validación biométrica facial.
+  - Firma digital avanzada (eCert Chile).
+  - Scoring financiero (DICOM, Equifax).
+  - Webpay para pagos en línea.
+- El sistema debe ser accesible vía Web y App móvil.
+- Se requiere una arquitectura escalable y segura para manejar datos sensibles.
+- Se utilizarán APIs para comunicación con sistemas bancarios y validadores externos.
