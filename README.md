@@ -11,12 +11,9 @@ Este es el repositorio del *Grupo 3*, cuyos integrantes son:
 
 ## Wiki
 
-> Obtener enlace desde el home de la wiki del repo.
-
 Puede acceder a la Wiki mediante el siguiente [enlace](https://github.com/V1centeJ1menez/GRUPOPOGWARE-2025-PROYINF/wiki)
 
 ## Videos
-
 
 * [Video presentación cliente](https://www.youtube.com/watch?v=uc8n8NwmRCM)
 
