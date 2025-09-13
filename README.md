@@ -2,12 +2,16 @@
 
 Este es el repositorio del *Grupo 3*, cuyos integrantes son:
 
-* Hector Muñoz - 202373628-7
-* Vicente Jimenez - 202373523-k
-* Andres Vial - 202373627-9
-* Simon Parra - 202373560-4
-* **Tutor**: Camilo Javier Gonzalo Araya
-* **Profesor de Paralelo**: Ricardo Salas
+
+| Nombre Completo         | RUT           | Rol                     |
+|-------------------------|---------------|--------------------------|
+| Héctor Muñoz            | 202373628-7   | Integrante               |
+| Vicente Jimenez         | 202373523-K   | Integrante               |
+| Andrés Vial             | 202373627-9   | Integrante               |
+| Simón Parra             | 202373560-4   | Integrante               |
+| **Camilo Araya**        | —             | Tutor                    |
+| **Ricardo Salas**       | —             | Profesor de Paralelo     |
+
 
 ## Wiki
 
