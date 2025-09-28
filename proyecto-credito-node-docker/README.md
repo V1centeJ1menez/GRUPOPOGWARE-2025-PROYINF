@@ -1,6 +1,26 @@
-# Aplicación Node.js con Docker y PostgreSQL
+# Aplicación de Solicitud de Créditos con Node.js y Docker
 
-Este proyecto es desarrollado por el grupo **POGWARE** para la asignatura **Proyecto de Informática 2025**. La aplicación utiliza **Node.js** con **Express**, **PostgreSQL** como base de datos y se despliega mediante **Docker**.
+Este proyecto es desarrollado por el grupo **POGWARE** para la asignatura **Proyecto de Informática 2025**. La aplicación utiliza **Node.js** con **Express**, **MySQL** como base de datos y se despliega mediante **Docker**.
+
+## 📋 Estructura del Proyecto
+```
+.
+├── src/
+│   ├── controllers/    # Lógica de negocio
+│   ├── models/         # Modelos de datos
+│   ├── public/         # Archivos estáticos (CSS, imágenes)
+│   └── views/          # Vistas HTML
+├── db.js              # Configuración de base de datos
+├── index.js           # Punto de entrada de la aplicación
+├── docker-compose.yml # Configuración de servicios
+└── Dockerfile         # Configuración de contenedor
+```
+
+## 🛠️ Tecnologías Principales
+- **Backend:** Node.js, Express
+- **Base de Datos:** MySQL
+- **Frontend:** HTML5, CSS3, Bootstrap 5
+- **Contenedorización:** Docker, Docker Compose
 
 ---
 
@@ -76,8 +96,29 @@ docker compose down -v
 
 ## ✅ Verificación
 
-Una vez levantado el proyecto, puedes probar el endpoint principal:
+Una vez levantado el proyecto:
 
+1. Visita `http://localhost:3000` en tu navegador
+2. Deberías ver la página principal de la aplicación
+3. Navega por las diferentes secciones:
+   - Inicio
+   - Información
+   - Acerca de
+   - Contacto
+
+## 🔧 Variables de Entorno
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+```env
+DB_HOST=mysql
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_NAME=creditos_db
+PORT=3000
+```
+
+## 🚀 Desarrollo Local
+Para desarrollo sin Docker:
 ```bash
-curl http://localhost:3000
+npm install
+npm run dev
 ```

@@ -1,7 +1,18 @@
 const express = require('express');
 const pool = require('./db'); // Importar la conexión
+const path = require('path');
 const app = express();
 const port = 3000;
+
+// Configurar middleware para servir vistas desde src/views
+app.set('views', path.join(__dirname, 'src', 'views'));
+app.set('view engine', 'ejs');
+
+// Importar las rutas principales desde src/controllers
+const mainRoutes = require('./src/controllers/mainController');
+
+// Usar las rutas principales
+app.use('/', mainRoutes);
 
 // Ruta de prueba que guarda un mensaje en la base de datos
 app.get('/save', async (req, res) => {
@@ -24,10 +35,6 @@ app.get('/messages', async (req, res) => {
     console.error(err);
     res.status(500).send('Error');
   }
-});
-
-app.get('/', (req, res) => {
-  res.send('¡Bienvenido! Usa /save para guardar un mensaje y /messages para verlos.');
 });
 
 app.listen(port, () => {
