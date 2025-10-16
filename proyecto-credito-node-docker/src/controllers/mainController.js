@@ -23,6 +23,8 @@ router.get('/contact', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/contact.html'));
 });
 
+
+
 // Ruta para guardar un mensaje en la base de datos
 router.get('/save', async (req, res) => {
     try {

@@ -8,8 +8,18 @@ const port = 3000;
 app.set('views', path.join(__dirname, 'src', 'views'));
 app.set('view engine', 'ejs');
 
+
+//permitir que parse json
+app.use(express.json());      // parse application/json
+app.use(express.urlencoded({ extended: true })); // parse form data if needed
+
+
 // Importar las rutas principales desde src/controllers
 const mainRoutes = require('./src/controllers/mainController');
+const simuladorRoutes = require('./src/controllers/simuladorController');
+app.use(express.json());
+app.use('/simulador', simuladorRoutes);
+
 
 // Usar las rutas principales
 app.use('/', mainRoutes);
@@ -40,3 +50,4 @@ app.get('/messages', async (req, res) => {
 app.listen(port, () => {
   console.log(`App corriendo en http://localhost:${port}`);
 });
+
