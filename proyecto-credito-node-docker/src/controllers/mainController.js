@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { pool } = require('../../db'); // Ruta corregida para db.js
+const { pool } = require('../db/db');
 
 // Ruta para la página principal
 router.get('/', (req, res) => {

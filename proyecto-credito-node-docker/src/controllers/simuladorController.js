@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const Simulador = require('../yavascrip/simulador'); 
+const Simulador = require('../services/simulador'); 
 
 router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../views/simulador.html'));

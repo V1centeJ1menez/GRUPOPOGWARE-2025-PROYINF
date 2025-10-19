@@ -1,27 +1,22 @@
 const express = require('express');
-const pool = require('./db'); // Importar la conexión
 const path = require('path');
+
 const app = express();
-const port = 3000;
 
-// Configurar middleware para servir vistas desde src/views
-app.set('views', path.join(__dirname, 'src', 'views'));
-app.set('view engine', 'ejs');
-
-
-//permitir que parse json
-app.use(express.json());      // parse application/json
-app.use(express.urlencoded({ extended: true })); // parse form data if needed
-
-
-// Importar las rutas principales desde src/controllers
-const mainRoutes = require('./src/controllers/mainController');
-const simuladorRoutes = require('./src/controllers/simuladorController');
+// Configurar middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Servir archivos estáticos desde src/public
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Rutas (controllers)
+const mainRoutes = require('./controllers/mainController');
+const simuladorRoutes = require('./controllers/simuladorController');
+const solicitudRoutes = require('./controllers/solicitudController');
+
 app.use('/simulador', simuladorRoutes);
-
-
-// Usar las rutas principales
+app.use('/solicitar', solicitudRoutes);
 app.use('/', mainRoutes);
 
 // Ruta de prueba que guarda un mensaje en la base de datos
@@ -47,7 +42,4 @@ app.get('/messages', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`App corriendo en http://localhost:${port}`);
-});
-
+module.exports = app;
