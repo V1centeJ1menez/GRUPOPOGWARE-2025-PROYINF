@@ -110,6 +110,7 @@ Una vez levantado el proyecto:
 2. Deberías ver la página principal de la aplicación
 3. Navega por las diferentes secciones:
    - Inicio
+   - Simula tu credito! (lo que es codigo de Simulación y este luego lleva a la Solicitud (Todo esto en testing))
    - Información
    - Acerca de
    - Contacto
