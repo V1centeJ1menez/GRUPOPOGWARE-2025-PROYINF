@@ -33,7 +33,7 @@
     color: var(--blanco);
   }
   .main-banner {
-    background-image: url('../img/fondo_landing.jpga');
+   
     background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
     background-position: center; /* Centra la imagen */
     background-repeat: no-repeat; /* Evita que la imagen se repita */

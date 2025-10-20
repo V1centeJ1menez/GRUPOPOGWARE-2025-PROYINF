@@ -5,15 +5,23 @@ Este proyecto es desarrollado por el grupo **POGWARE** para la asignatura **Proy
 ## 📋 Estructura del Proyecto
 ```
 .
-├── src/
-│   ├── controllers/    # Lógica de negocio
-│   ├── models/         # Modelos de datos
-│   ├── public/         # Archivos estáticos (CSS, imágenes)
-│   └── views/          # Vistas HTML
-├── db.js              # Configuración de base de datos
-├── index.js           # Punto de entrada de la aplicación
-├── docker-compose.yml # Configuración de servicios
-└── Dockerfile         # Configuración de contenedor
+├── server.js           # Punto de entrada (arranca src/app)
+├── package.json
+├── docker-compose.yml  # Configuración de servicios
+├── Dockerfile          # Configuración de contenedor
+├── README.md
+└── src/
+  ├── app.js           # Configuración de Express (mount routes, middlewares)
+  ├── controllers/     # Lógica de rutas y controladores
+  ├── services/        # Lógica de negocio reutilizable (ej. simulador)
+  ├── models/          # Modelos de datos (clases, esquemas)
+  ├── db/              # Conexión a la base de datos
+  │   └── db.js
+  ├── public/          # Archivos estáticos
+  │   ├── css/
+  │   ├── js/
+  │   └── img/
+  └── views/           # Vistas HTML
 ```
 
 ## 🛠️ Tecnologías Principales
@@ -106,19 +114,3 @@ Una vez levantado el proyecto:
    - Acerca de
    - Contacto
 
-## 🔧 Variables de Entorno
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
-```env
-DB_HOST=mysql
-DB_USER=tu_usuario
-DB_PASSWORD=tu_contraseña
-DB_NAME=creditos_db
-PORT=3000
-```
-
-## 🚀 Desarrollo Local
-Para desarrollo sin Docker:
-```bash
-npm install
-npm run dev
-```
