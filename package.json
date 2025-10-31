@@ -1,0 +1,11 @@
+{
+    "name": "mi-proyecto-node-docker",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "start": "npm --prefix server start",
+        "start:server": "npm --prefix server start",
+        "install:server": "npm --prefix server install",
+        "install:client": "npm --prefix client install"
+    }
+}
