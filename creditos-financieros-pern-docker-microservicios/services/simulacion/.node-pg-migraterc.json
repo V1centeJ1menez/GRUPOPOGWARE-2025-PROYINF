@@ -1,0 +1,13 @@
+{
+  "databaseUrl": {
+    "env": "DATABASE_URL"
+  },
+  "migrationsTable": "pgmigrations",
+  "dir": "migrations",
+  "schema": "public",
+  "host": "db_simulacion",
+  "port": 5432,
+  "database": "simulacion_db",
+  "user": "postgres",
+  "password": "postgres"
+}
