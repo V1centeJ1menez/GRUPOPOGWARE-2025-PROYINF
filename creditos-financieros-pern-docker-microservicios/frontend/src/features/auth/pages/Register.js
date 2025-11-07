@@ -12,6 +12,7 @@ import {
   Avatar,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { register as registerApi } from "../services/authApi";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 
 export default function Register() {
@@ -47,13 +48,14 @@ export default function Register() {
     }
 
     try {
+      // Llamada al backend para registrar
+      await registerApi({ username: form.username, email: form.email, password: form.password });
       navigate("/register/success", {
         replace: true,
         state: { username: form.username, email: form.email },
       });
     } catch (err) {
-      const msg =
-        err?.response?.data?.error || err?.message || "Error al registrarse";
+      const msg = err?.response?.data?.error || err?.message || "Error al registrarse";
       setMessage({ type: "error", text: msg });
     }
   };
