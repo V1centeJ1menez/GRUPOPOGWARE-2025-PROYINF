@@ -7,7 +7,7 @@ import Login from "./features/auth/pages/Login";
 import Register from "./features/auth/pages/Register";
 import RegisterSuccess from "./features/auth/pages/RegisterSuccess";
 import Dashboard from "./app/pages/Dashboard";
-import Simulacion from "./features/simulacion/pages/Simulacion";
+import Simulacion from "./features/simulacion/pages/SimulacionPage";
 import SimulacionDetalle from "./features/simulacion/pages/SimulacionDetalle";
 
 function App() {
