@@ -1,0 +1,298 @@
+services:
+  # ==========================
+  # AUTH SERVICE
+  # ==========================
+  auth:
+    build: ./auth
+    env_file:
+      - ./auth/.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db_auth
+
+  db_auth:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    volumes:
+      - db_auth_data:/var/lib/postgresql/data
+    ports:
+      - "5400:5432"
+
+  # ==========================
+  # CAMPANA SERVICE
+  # ==========================
+  campana:
+    build: ./services/campana
+    env_file:
+      - ./services/campana/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db_campana
+
+  db_campana:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: campana_db
+    volumes:
+      - db_campana_data:/var/lib/postgresql/data
+    ports:
+      - "5401:5432"
+
+  # ==========================
+  # SIMULACION SERVICE
+  # ==========================
+  simulacion:
+    build: ./services/simulacion
+    env_file:
+      - ./services/simulacion/.env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - db_simulacion
+
+  db_simulacion:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: simulacion_db
+    volumes:
+      - db_simulacion_data:/var/lib/postgresql/data
+    ports:
+      - "5402:5432"
+
+  # ==========================
+  # SOLICITUD SERVICE
+  # ==========================
+  solicitud:
+    build: ./services/solicitud
+    env_file:
+      - ./services/solicitud/.env
+    ports:
+      - "3003:3003"
+    depends_on:
+      - db_solicitud
+
+  db_solicitud:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: solicitud_db
+    volumes:
+      - db_solicitud_data:/var/lib/postgresql/data
+    ports:
+      - "5403:5432"
+
+  # ==========================
+  # EVALUACION SERVICE
+  # ==========================
+  evaluacion:
+    build: ./services/evaluacion
+    env_file:
+      - ./services/evaluacion/.env
+    ports:
+      - "3004:3004"
+    depends_on:
+      - db_evaluacion
+
+  db_evaluacion:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: evaluacion_db
+    volumes:
+      - db_evaluacion_data:/var/lib/postgresql/data
+    ports:
+      - "5404:5432"
+
+  # ==========================
+  # FIRMA SERVICE
+  # ==========================
+  firma:
+    build: ./services/firma
+    env_file:
+      - ./services/firma/.env
+    ports:
+      - "3005:3005"
+    depends_on:
+      - db_firma
+
+  db_firma:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: firma_db
+    volumes:
+      - db_firma_data:/var/lib/postgresql/data
+    ports:
+      - "5405:5432"
+
+  # ==========================
+  # DESEMBOLSO SERVICE
+  # ==========================
+  desembolso:
+    build: ./services/desembolso
+    env_file:
+      - ./services/desembolso/.env
+    ports:
+      - "3006:3006"
+    depends_on:
+      - db_desembolso
+
+  db_desembolso:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: desembolso_db
+    volumes:
+      - db_desembolso_data:/var/lib/postgresql/data
+    ports:
+      - "5406:5432"
+
+  # ==========================
+  # PAGO SERVICE
+  # ==========================
+  pago:
+    build: ./services/pago
+    env_file:
+      - ./services/pago/.env
+    ports:
+      - "3007:3007"
+    depends_on:
+      - db_pago
+
+  db_pago:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pago_db
+    volumes:
+      - db_pago_data:/var/lib/postgresql/data
+    ports:
+      - "5407:5432"
+
+  # ==========================
+  # COBRANZA SERVICE
+  # ==========================
+  cobranza:
+    build: ./services/cobranza
+    env_file:
+      - ./services/cobranza/.env
+    ports:
+      - "3008:3008"
+    depends_on:
+      - db_cobranza
+
+  db_cobranza:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cobranza_db
+    volumes:
+      - db_cobranza_data:/var/lib/postgresql/data
+    ports:
+      - "5408:5432"
+
+  # ==========================
+  # ACTIVACION SERVICE
+  # ==========================
+  activacion:
+    build: ./services/activacion
+    env_file:
+      - ./services/activacion/.env
+    ports:
+      - "3009:3009"
+    depends_on:
+      - db_activacion
+
+  db_activacion:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: activacion_db
+    volumes:
+      - db_activacion_data:/var/lib/postgresql/data
+    ports:
+      - "5409:5432"
+
+  # ==========================
+  # GATEWAY
+  # ==========================
+  gateway:
+    build: ./gateway
+    env_file:
+      - ./gateway/.env
+    ports:
+      - "8080:3000"
+    depends_on:
+      - auth
+      - campana
+      - simulacion
+      - solicitud
+      - evaluacion
+      - firma
+      - desembolso
+      - pago
+      - cobranza
+      - activacion
+
+  # ==========================
+  # FRONTEND
+  # ==========================
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:3000"
+    depends_on:
+      - gateway
+
+  # ==========================
+  # READY MESSAGE
+  # ==========================
+  ready_message:
+    image: alpine:3.19
+    depends_on:
+      - frontend
+    command: >
+      sh -c "sleep 4 &&
+      echo 'Todos los servicios están levantados correctamente! 🚀' &&
+      echo '-----------------------------------------------' &&
+      echo 'Frontend:   http://localhost:5173' &&
+      echo 'Gateway:    http://localhost:8080' &&
+      echo 'Auth:       http://localhost:4000' &&
+      echo 'Campaña:    http://localhost:3001' &&
+      echo 'Simulación: http://localhost:3002' &&
+      echo 'Solicitud:  http://localhost:3003' &&
+      echo 'Evaluación: http://localhost:3004' &&
+      echo 'Firma:      http://localhost:3005' &&
+      echo 'Desembolso: http://localhost:3006' &&
+      echo 'Pago:       http://localhost:3007' &&
+      echo 'Cobranza:   http://localhost:3008' &&
+      echo 'Activación: http://localhost:3009' &&
+      echo '-----------------------------------------------\n'"
+
+volumes:
+  db_auth_data:
+  db_campana_data:
+  db_simulacion_data:
+  db_solicitud_data:
+  db_evaluacion_data:
+  db_firma_data:
+  db_desembolso_data:
+  db_pago_data:
+  db_cobranza_data:
+  db_activacion_data:

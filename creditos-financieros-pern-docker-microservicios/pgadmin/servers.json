@@ -1,0 +1,24 @@
+{
+	"Servers": {
+		"1": {
+			"Name": "Auth DB",
+			"Group": "Microservicios",
+			"Host": "db_auth",
+			"Port": 5432,
+			"MaintenanceDB": "postgres",
+			"Username": "postgres",
+			"Password": "postgres",
+			"SSLMode": "prefer"
+		},
+		"2": {
+			"Name": "Simulacion DB",
+			"Group": "Microservicios",
+			"Host": "db_simulacion",
+			"Port": 5432,
+			"MaintenanceDB": "postgres",
+			"Username": "postgres",
+			"Password": "postgres",
+			"SSLMode": "prefer"
+		}
+	}
+}

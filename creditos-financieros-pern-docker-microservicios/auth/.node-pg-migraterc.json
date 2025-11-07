@@ -1,0 +1,9 @@
+{
+  "host": "db_auth",
+  "port": 5432,
+  "database": "auth_db",
+  "user": "postgres",
+  "password": "postgres",
+  "schema": "public",
+  "migrations-table": "pgmigrations"
+}

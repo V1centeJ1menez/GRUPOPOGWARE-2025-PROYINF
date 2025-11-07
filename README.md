@@ -28,12 +28,4 @@ Puede acceder a la Wiki mediante el siguiente [enlace](https://github.com/V1cent
 
 ## Aspectos técnicos relevantes
 
-- El proyecto se basa en la digitalización completa del proceso de préstamos de consumo.
-- Se contempla la integración con servicios externos como:
-  - Validación biométrica facial.
-  - Firma digital avanzada (eCert Chile).
-  - Scoring financiero (DICOM, Equifax).
-  - Webpay para pagos en línea.
-- El sistema debe ser accesible vía Web y App móvil.
-- Se requiere una arquitectura escalable y segura para manejar datos sensibles.
-- Se utilizarán APIs para comunicación con sistemas bancarios y validadores externos.
+- Hay que tener cuidado con los puertos de los microservicios, verificar que no esten siendo usados para un correcto levantamiento

@@ -1,0 +1,22 @@
+{
+  "name": "activacion-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "migrate": "node-pg-migrate up",
+    "rollback": "node-pg-migrate down",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.6.0",
+    "express": "^4.21.2",
+    "node-pg-migrate": "^8.0.3",
+    "pg": "^8.16.3"
+  },
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
