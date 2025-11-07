@@ -1,20 +1,18 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { ThemeModeProvider } from "./context/ThemeContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Navbar from "./components/Navbar";
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import RegisterSuccess from "./pages/RegisterSuccess";
-import Dashboard from "./pages/Dashboard";
-import Simulacion from "./pages/Simulacion";
-import SimulacionDetalle from "./pages/SimulacionDetalle";
+import AppProviders from "./app/AppProviders";
+import ProtectedRoute from "./app/components/ProtectedRoute";
+import Navbar from "./app/components/Navbar";
+import Landing from "./app/pages/Landing";
+import Login from "./features/auth/pages/Login";
+import Register from "./features/auth/pages/Register";
+import RegisterSuccess from "./features/auth/pages/RegisterSuccess";
+import Dashboard from "./app/pages/Dashboard";
+import Simulacion from "./features/simulacion/pages/Simulacion";
+import SimulacionDetalle from "./features/simulacion/pages/SimulacionDetalle";
 
 function App() {
   return (
-    <ThemeModeProvider>
-      <AuthProvider>
+    <AppProviders>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -48,8 +46,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-      </AuthProvider>
-    </ThemeModeProvider>
+    </AppProviders>
   );
 }
 
