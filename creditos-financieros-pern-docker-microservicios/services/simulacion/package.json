@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "wait-for-db": "node wait-for-db.js",
     "migrate": "node-pg-migrate up",
     "rollback": "node-pg-migrate down",
     "start": "node index.js"
