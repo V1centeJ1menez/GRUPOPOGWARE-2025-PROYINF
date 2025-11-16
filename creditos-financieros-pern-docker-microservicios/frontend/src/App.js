@@ -11,6 +11,9 @@ import Simulacion from "./features/simulacion/pages/SimulacionPage";
 import SimulacionDetalle from "./features/simulacion/pages/SimulacionDetalle";
 import SimularAnonPage from "./features/simulacion/pages/SimularAnonPage";
 import NuevaSolicitud from "./features/solicitud/pages/NuevaSolicitud";
+import SolicitudSuccess from "./features/solicitud/pages/SolicitudSuccess";
+import AdminRoute from "./app/components/AdminRoute";
+import AdminHome from "./features/admin/pages/AdminHome";
 
 function App() {
   return (
@@ -42,6 +45,14 @@ function App() {
             }
           />
           <Route
+            path="/solicitud/success"
+            element={
+              <ProtectedRoute>
+                <SolicitudSuccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/simulacion"
             element={
               <ProtectedRoute>
@@ -55,6 +66,14 @@ function App() {
               <ProtectedRoute>
                 <SimulacionDetalle />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminHome />
+              </AdminRoute>
             }
           />
         </Routes>

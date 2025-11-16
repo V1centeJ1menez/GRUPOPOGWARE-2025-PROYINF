@@ -73,6 +73,8 @@ services:
       - "8080:3000"
     depends_on:
       - auth
+      - solicitud
+      - evaluacion
 
   # ==========================
   # FRONTEND
@@ -84,6 +86,52 @@ services:
     depends_on:
       - gateway
       - simulacion
+
+  # ==========================
+  # SOLICITUD SERVICE
+  # ==========================
+  solicitud:
+    build: ./services/solicitud
+    env_file:
+      - ./services/solicitud/.env
+    ports:
+      - "3003:3003"
+    depends_on:
+      - db_solicitud
+
+  db_solicitud:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: solicitud_db
+    volumes:
+      - db_solicitud_data:/var/lib/postgresql/data
+    ports:
+      - "5403:5432"
+
+  # ==========================
+  # EVALUACION SERVICE
+  # ==========================
+  evaluacion:
+    build: ./services/evaluacion
+    env_file:
+      - ./services/evaluacion/.env
+    ports:
+      - "3004:3004"
+    depends_on:
+      - db_evaluacion
+
+  db_evaluacion:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: evaluacion_db
+    volumes:
+      - db_evaluacion_data:/var/lib/postgresql/data
+    ports:
+      - "5404:5432"
 
   # ==========================
   # READY MESSAGE
@@ -106,3 +154,5 @@ volumes:
   db_auth_data:
   db_simulacion_data:
   pgadmin_data:
+  db_solicitud_data:
+  db_evaluacion_data:

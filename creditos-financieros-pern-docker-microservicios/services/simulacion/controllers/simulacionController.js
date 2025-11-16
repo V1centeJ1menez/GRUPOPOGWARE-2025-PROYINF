@@ -242,4 +242,43 @@ const obtenerConfiguracion = async (req, res) => {
   }
 };
 
-module.exports = { simular, obtenerHistorial, obtenerPorId, eliminar, obtenerConfiguracion, CONFIG };
+function isAdminFromToken(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    return payload.role === 'admin';
+  } catch (e) {
+    console.error('Error al verificar rol admin:', e);
+    return false;
+  }
+}
+
+const listarTodas = async (req, res) => {
+  try {
+    if (!isAdminFromToken(req)) return res.status(403).json({ error: 'No autorizado' });
+    const result = await pool.query('SELECT * FROM simulaciones ORDER BY created_at DESC');
+    const simulaciones = result.rows.map(row => ({
+      id: row.id,
+      user_id: row.user_id,
+      monto: parseFloat(row.monto),
+      plazo: row.plazo,
+      tasaBase: parseFloat(row.tasa_base),
+      cae: parseFloat(row.cae),
+      cuotaMensual: parseFloat(row.cuota_mensual),
+      montoTotal: parseFloat(row.monto_total),
+      montoLiquido: parseFloat(row.monto_liquido),
+      interesesTotales: parseFloat(row.intereses_totales),
+      gastosOperacionales: parseFloat(row.gastos_operacionales),
+      comisionApertura: parseFloat(row.comision_apertura),
+      resultado: row.resultado,
+      fecha: row.created_at,
+    }));
+    return res.json(simulaciones);
+  } catch (err) {
+    console.error('Error al listar todas las simulaciones:', err);
+    res.status(500).json({ error: 'Error al listar todas las simulaciones' });
+  }
+};
+
+module.exports = { simular, obtenerHistorial, obtenerPorId, eliminar, obtenerConfiguracion, listarTodas, CONFIG };

@@ -46,3 +46,16 @@ exports.login = async (req, res) => {
     res.status(500).send("Error en login");
   }
 };
+
+// Listar usuarios (solo admin)
+exports.listUsers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, username, email, role, created_at FROM users ORDER BY id ASC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error al listar usuarios");
+  }
+};

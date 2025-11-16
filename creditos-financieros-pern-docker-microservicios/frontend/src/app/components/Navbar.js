@@ -44,7 +44,7 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const role = user && user.role ? user.role : null;
+  const role = user?.role || null;
 
   return (
     <AppBar

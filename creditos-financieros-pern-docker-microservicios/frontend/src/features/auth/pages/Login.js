@@ -23,11 +23,30 @@ export default function Login() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/dashboard";
 
+  function getRoleFromToken(token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      let payload = parts[1].replace(/-/g,'+').replace(/_/g,'/');
+      while (payload.length % 4 !== 0) payload += '=';
+      const data = JSON.parse(atob(payload));
+      return data.role || null;
+    } catch { return null; }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await loginUser(form);
-      login(res.data.token);
+      const token = res.data.token;
+      login(token);
+      const role = getRoleFromToken(token);
+
+      // Si es admin, redirigir inmediatamente al panel sin procesar flujo de simulación pendiente
+      if (role === 'admin') {
+        navigate('/admin', { replace: true });
+        return;
+      }
       // Redirección según intención:
       try {
         const raw = localStorage.getItem("pending_simulation");
@@ -38,7 +57,7 @@ export default function Login() {
             try { await crearSimulacion({ monto: sim.monto, plazo: sim.plazo }, res.data.token); } catch {}
             try { localStorage.setItem('notify_saved_sim', '1'); } catch {}
             localStorage.removeItem('pending_action');
-            navigate('/dashboard', { replace: true });
+            navigate(role === 'admin' ? '/admin' : '/dashboard', { replace: true });
             return;
           }
           if (from === "/solicitud/nueva") {
@@ -47,7 +66,7 @@ export default function Login() {
           }
         }
       } catch {}
-      // Caso general: ir a la ruta de retorno o dashboard
+      // Caso general (usuario normal): ir a la ruta de retorno o dashboard
       navigate(from, { replace: true });
     } catch {
       alert("Usuario o contraseña incorrectos");

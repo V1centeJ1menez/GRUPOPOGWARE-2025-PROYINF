@@ -23,8 +23,18 @@ const proxyRequest = (serviceUrl) => async (req, res) => {
       method: req.method,
       url,
       data: req.body,
-      headers
+      headers,
+      validateStatus: (status) => (status >= 200 && status < 300) || status === 304,
     });
+    if (response.status === 304) {
+      // Respuesta no modificada: sin cuerpo
+      // Propagar cabeceras relevantes si existen
+      const passHeaders = ["etag", "last-modified", "cache-control", "expires"];
+      passHeaders.forEach((h) => {
+        if (response.headers?.[h]) res.setHeader(h, response.headers[h]);
+      });
+      return res.status(304).end();
+    }
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error("[Gateway] Error proxying", req.method, req.originalUrl, {

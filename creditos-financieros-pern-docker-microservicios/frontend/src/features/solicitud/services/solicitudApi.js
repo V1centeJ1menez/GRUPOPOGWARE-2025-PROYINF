@@ -10,3 +10,9 @@ export const listarSolicitudes = (token) =>
 
 export const actualizarEstadoSolicitud = (id, estado, token) =>
   axios.patch(`${API_URL}/api/solicitudes/${id}`, { estado }, { headers: { Authorization: `Bearer ${token}` } });
+
+export const eliminarSolicitud = (id, token) =>
+  axios.delete(`${API_URL}/api/solicitudes/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+
+export const obtenerSolicitud = (id, token) =>
+  axios.get(`${API_URL}/api/solicitudes/${id}`, { headers: { Authorization: `Bearer ${token}` } });

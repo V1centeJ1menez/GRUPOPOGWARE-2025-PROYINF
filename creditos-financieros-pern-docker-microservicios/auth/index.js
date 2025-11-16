@@ -84,5 +84,35 @@ app.post("/login", async (req, res) => {
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
+// === Helpers de autenticación/autorization ===
+function verifyToken(req, res, next) {
+  try {
+    const header = req.headers.authorization || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+    if (!token) return res.status(401).json({ error: "Token requerido" });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: "Token inválido" });
+  }
+}
+
+function verifyAdmin(req, res, next) {
+  if (req.user?.role !== "admin") return res.status(403).json({ error: "No autorizado" });
+  next();
+}
+
+// === Endpoint admin: listar usuarios ===
+app.get("/users", verifyToken, verifyAdmin, async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT id, username, email, role, created_at FROM users ORDER BY id ASC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("/users error:", err);
+    res.status(500).json({ error: "No se pudo listar usuarios" });
+  }
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Auth en puerto ${PORT}`));

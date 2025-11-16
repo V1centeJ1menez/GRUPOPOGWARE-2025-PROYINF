@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { popPendingSimulation } from "../../simulacion/utils/localHistory";
 import { formatCurrency } from "../../simulacion/utils/simulacionUtils";
 import { AuthContext } from "../../auth/authContext";
-import { crearSolicitud } from "../services/solicitudApi";
+import { crearSolicitud, actualizarEstadoSolicitud, eliminarSolicitud } from "../services/solicitudApi";
 
 export default function NuevaSolicitud() {
   const navigate = useNavigate();
@@ -12,13 +12,15 @@ export default function NuevaSolicitud() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
 
+  const borrador = location.state?.solicitud || null;
   const pending = useMemo(() => {
-    // Permite arrastrar datos por state o storage
+    // Permite arrastrar datos por state o storage si no viene un borrador
+    if (borrador) return null;
     const stateSim = location.state?.sim || null;
     return stateSim || popPendingSimulation();
-  }, [location.state]);
+  }, [location.state, borrador]);
 
-  if (!pending) {
+  if (!pending && !borrador) {
     return (
       <div style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
         <div style={{ background: "#fff3cd", color: "#664d03", padding: 16, borderRadius: 8, marginBottom: 16 }}>
@@ -32,15 +34,19 @@ export default function NuevaSolicitud() {
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
       <h2 style={{ marginTop: 0 }}>📝 Nueva Solicitud</h2>
-      <p style={{ color: "#6b7280" }}>Hemos precargado tu solicitud según tu última simulación.</p>
+      <p style={{ color: "#6b7280" }}>
+        {borrador
+          ? 'Estás retomando un borrador de solicitud. Puedes enviarlo o eliminarlo.'
+          : 'Hemos precargado tu solicitud según tu última simulación.'}
+      </p>
 
       <div style={card}>
-        <h3 style={{ marginTop: 0 }}>Resumen de simulación</h3>
+        <h3 style={{ marginTop: 0 }}>Resumen {borrador ? 'del borrador' : 'de simulación'}</h3>
         <ul>
-          <li>Monto: <strong>{formatCurrency(pending.monto)}</strong></li>
-          <li>Plazo: <strong>{pending.plazo} meses</strong></li>
-          <li>Cuota estimada: <strong>{formatCurrency(pending.cuotaMensual)}</strong></li>
-          <li>Tasa anual ajustada: <strong>{(pending.tasaBase * 100).toFixed(2)}%</strong></li>
+          <li>Monto: <strong>{formatCurrency((borrador?.monto ?? pending?.monto) || 0)}</strong></li>
+          <li>Plazo: <strong>{(borrador?.plazo ?? pending?.plazo) || 0} meses</strong></li>
+          <li>Cuota estimada: <strong>{formatCurrency((borrador?.cuotaMensual ?? pending?.cuotaMensual) || 0)}</strong></li>
+          <li>Tasa anual ajustada: <strong>{(((borrador?.tasaBase ?? pending?.tasaBase) || 0) * 100).toFixed(2)}%</strong></li>
         </ul>
       </div>
 
@@ -59,8 +65,8 @@ export default function NuevaSolicitud() {
       <div style={card}>
         <h3 style={{ marginTop: 0 }}>Condiciones del crédito</h3>
         <div style={grid}>
-          <Field label="Monto" defaultValue={pending.monto} />
-          <Field label="Plazo (meses)" defaultValue={pending.plazo} />
+          <Field label="Monto" defaultValue={borrador?.monto ?? pending.monto} />
+          <Field label="Plazo (meses)" defaultValue={borrador?.plazo ?? pending.plazo} />
           <Field label="Fecha primer pago" type="date" />
         </div>
       </div>
@@ -71,34 +77,69 @@ export default function NuevaSolicitud() {
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: 'wrap' }}>
+        {!borrador && (
+          <button
+            disabled={sending}
+            onClick={async () => {
+              setError(null);
+              setSending(true);
+              try {
+                await crearSolicitud({ ...mapSimToSolicitud(pending), estado: 'borrador' }, user.token);
+                navigate("/dashboard");
+              } catch (e) {
+                setError(e.response?.data?.error || 'No se pudo guardar el borrador');
+              } finally {
+                setSending(false);
+              }
+            }}
+            style={btnSecondary}
+          >
+            {sending ? 'Guardando...' : 'Guardar borrador'}
+          </button>
+        )}
+
+        {borrador && (
+          <button
+            disabled={sending}
+            onClick={async () => {
+              const confirmar = window.confirm('¿Eliminar este borrador? Esta acción no se puede deshacer.');
+              if (!confirmar) return;
+              setError(null);
+              setSending(true);
+              try {
+                await eliminarSolicitud(borrador.id, user.token);
+                navigate('/dashboard');
+              } catch (e) {
+                setError(e.response?.data?.error || 'No se pudo eliminar el borrador');
+              } finally {
+                setSending(false);
+              }
+            }}
+            style={btnSecondary}
+          >
+            Eliminar borrador
+          </button>
+        )}
+
         <button
           disabled={sending}
           onClick={async () => {
             setError(null);
             setSending(true);
             try {
-              await crearSolicitud({ ...mapSimToSolicitud(pending), estado: 'borrador' }, user.token);
-              navigate("/dashboard");
-            } catch (e) {
-              setError(e.response?.data?.error || 'No se pudo guardar el borrador');
-            } finally {
-              setSending(false);
-            }
-          }}
-          style={btnSecondary}
-        >
-          {sending ? 'Guardando...' : 'Guardar borrador'}
-        </button>
-        <button
-          disabled={sending}
-          onClick={async () => {
-            setError(null);
-            setSending(true);
-            try {
-              const resp = await crearSolicitud({ ...mapSimToSolicitud(pending), estado: 'enviada' }, user.token);
-              alert('Solicitud enviada con id ' + resp.data.id);
-              navigate("/dashboard");
+              const confirmar = window.confirm("¿Seguro que quieres enviar tu solicitud ahora?");
+              if (!confirmar) {
+                setSending(false);
+                return;
+              }
+              if (borrador) {
+                await actualizarEstadoSolicitud(borrador.id, 'enviada', user.token);
+                navigate("/solicitud/success", { state: { solicitudId: borrador.id } });
+              } else {
+                const resp = await crearSolicitud({ ...mapSimToSolicitud(pending), estado: 'enviada' }, user.token);
+                navigate("/solicitud/success", { state: { solicitudId: resp.data.id } });
+              }
             } catch (e) {
               setError(e.response?.data?.error || 'No se pudo enviar la solicitud');
             } finally {
