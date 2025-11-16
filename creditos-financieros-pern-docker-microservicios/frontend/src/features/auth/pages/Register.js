@@ -48,8 +48,8 @@ export default function Register() {
     }
 
     try {
-      // Llamada al backend para registrar
       await registerApi({ username: form.username, email: form.email, password: form.password });
+      // Ir a pantalla de éxito; desde ahí el usuario va a Login
       navigate("/register/success", {
         replace: true,
         state: { username: form.username, email: form.email },

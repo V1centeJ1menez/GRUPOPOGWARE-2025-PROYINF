@@ -12,7 +12,7 @@ export default function SimulacionPreview({
 }) {
   return (
     <div style={styles.card}>
-      <h2 style={styles.cardTitle}>📊 Vista Previa</h2>
+      <h2 style={styles.cardTitle}>Vista Previa</h2>
 
       {vistaPrevia ? (
         <>
@@ -32,6 +32,12 @@ export default function SimulacionPreview({
           </div>
 
           <div style={styles.detailsGrid}>
+            {typeof vistaPrevia.scoreInicial !== 'undefined' && (
+              <div style={styles.detailItem}>
+                <span>🧮 Scoring inicial:</span>
+                <strong>{vistaPrevia.scoreInicial}</strong>
+              </div>
+            )}
             <div style={styles.detailItem}>
               <span>💰 Total a Pagar:</span>
               <strong>{formatCurrency(vistaPrevia.montoTotal)}</strong>

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { crearSimulacion, obtenerHistorial, eliminarSimulacion } from "../services/simulacionApi";
-import { CONFIG as DEFAULT_CONFIG } from "../constants";
+import useSimulacionConfig from "./useSimulacionConfig";
 
 export default function useSimulacion(user) {
   const navigate = useNavigate();
-  const CONFIG = DEFAULT_CONFIG;
+  const { CONFIG } = useSimulacionConfig();
 
   const [monto, setMonto] = useState(5000000);
   const [plazo, setPlazo] = useState(24);

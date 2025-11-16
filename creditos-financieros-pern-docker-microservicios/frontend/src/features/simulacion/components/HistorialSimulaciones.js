@@ -12,6 +12,7 @@ export default function HistorialSimulaciones({
   formatCurrency,
   formatPercent,
   formatDate,
+  modoLocal = false,
 }) {
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ export default function HistorialSimulaciones({
     <>
       <div style={styles.historialGrid}>
         {historial.map((sim) => (
-          <div key={sim.id} style={styles.historialCard} onClick={() => handleSeleccionarSimulacion(sim)}>
+          <div key={sim.id} style={styles.historialCard} onClick={() => !modoLocal && handleSeleccionarSimulacion(sim)}>
             <div style={styles.historialHeader}>
               <span style={{ ...styles.historialBadge, ...(sim.resultado === "aprobado" ? styles.badgeSuccess : styles.badgeError) }}>
                 {sim.resultado.toUpperCase()}
@@ -55,19 +56,20 @@ export default function HistorialSimulaciones({
                 🗑️
               </button>
             </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/simulacion/${sim.id}`);
-                }}
-                style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontSize: "13px", textDecoration: "underline" }}
-                title="Ver detalle"
-              >
-                Ver detalle →
-              </button>
-            </div>
+            {!modoLocal && (
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/simulacion/${sim.id}`);
+                  }}
+                  style={{ background: "none", border: "none", color: "#007bff", cursor: "pointer", fontSize: "13px", textDecoration: "underline" }}
+                  title="Ver detalle"
+                >
+                  Ver detalle →
+                </button>
+              </div>
+            )}
 
             <div style={styles.historialCuota}>
               <div style={styles.historialCuotaValue}>{formatCurrency(sim.cuotaMensual)}</div>

@@ -105,10 +105,11 @@ function Landing() {
 
   const handleSimular = (e) => {
     e.preventDefault();
+    // Si hay sesión, ir al simulador real; si no, al anónimo
     if (user) {
       navigate("/simulacion");
     } else {
-      navigate("/login");
+      navigate("/simular");
     }
   };
 

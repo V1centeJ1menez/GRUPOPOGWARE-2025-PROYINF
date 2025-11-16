@@ -2,6 +2,7 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../authContext";
 import { login as loginUser } from "../services/authApi";
+import { crearSimulacion } from "../../simulacion/services/simulacionApi";
 import {
   Button,
   TextField,
@@ -27,6 +28,26 @@ export default function Login() {
     try {
       const res = await loginUser(form);
       login(res.data.token);
+      // Redirección según intención:
+      try {
+        const raw = localStorage.getItem("pending_simulation");
+        const action = localStorage.getItem("pending_action");
+        if (raw) {
+          const sim = JSON.parse(raw);
+          if (action === 'save_to_history') {
+            try { await crearSimulacion({ monto: sim.monto, plazo: sim.plazo }, res.data.token); } catch {}
+            try { localStorage.setItem('notify_saved_sim', '1'); } catch {}
+            localStorage.removeItem('pending_action');
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+          if (from === "/solicitud/nueva") {
+            navigate("/solicitud/nueva", { replace: true, state: { sim } });
+            return;
+          }
+        }
+      } catch {}
+      // Caso general: ir a la ruta de retorno o dashboard
       navigate(from, { replace: true });
     } catch {
       alert("Usuario o contraseña incorrectos");

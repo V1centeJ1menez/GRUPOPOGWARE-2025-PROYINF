@@ -9,6 +9,8 @@ import RegisterSuccess from "./features/auth/pages/RegisterSuccess";
 import Dashboard from "./app/pages/Dashboard";
 import Simulacion from "./features/simulacion/pages/SimulacionPage";
 import SimulacionDetalle from "./features/simulacion/pages/SimulacionDetalle";
+import SimularAnonPage from "./features/simulacion/pages/SimularAnonPage";
+import NuevaSolicitud from "./features/solicitud/pages/NuevaSolicitud";
 
 function App() {
   return (
@@ -20,11 +22,22 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/register/success" element={<RegisterSuccess />} />
+          {/* Simulación pública sin registro */}
+          <Route path="/simular" element={<SimularAnonPage />} />
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          {/* Continuación del flujo tras login con datos precargados */}
+          <Route
+            path="/solicitud/nueva"
+            element={
+              <ProtectedRoute>
+                <NuevaSolicitud />
               </ProtectedRoute>
             }
           />

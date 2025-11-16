@@ -1,20 +1,22 @@
 const express = require("express");
-const { Pool } = require("pg");
+const cors = require("cors");
 require("dotenv").config();
+const { pool } = require("./db");
+const solicitudRoutes = require("./routes/solicitudRoutes");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", service: "solicitud" });
 });
 
 app.get("/", (req, res) => {
   res.send("Servicio Solicitud funcionando 🚀");
 });
 
-app.listen(process.env.PORT, () => console.log(`Solicitud escuchando en puerto ${process.env.PORT}`));
+app.use("/api", solicitudRoutes);
+
+const PORT = process.env.PORT || 5007;
+app.listen(PORT, () => console.log(`✅ Solicitud escuchando en puerto ${PORT}`));

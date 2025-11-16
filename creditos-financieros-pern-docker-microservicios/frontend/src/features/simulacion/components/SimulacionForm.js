@@ -11,10 +11,12 @@ export default function SimulacionForm({
   CONFIG,
   styles,
   formatCurrency,
+  onSolicitar,
+  canSolicitar = false,
 }) {
   return (
     <div style={styles.card}>
-      <h2 style={styles.cardTitle}>📝 Configuración del Crédito</h2>
+      <h2 style={styles.cardTitle}>Configuración del Crédito</h2>
 
       <div style={styles.infoBox}>
         <strong style={{ color: "black" }}>ℹ️ Requisitos:</strong>
@@ -31,7 +33,7 @@ export default function SimulacionForm({
 
       <form onSubmit={handleSimular}>
         <div style={styles.formGroup}>
-          <label style={styles.label}>💵 Monto del Crédito</label>
+          <label style={styles.label}>Monto del Crédito</label>
           <input
             type="number"
             value={monto}
@@ -58,7 +60,7 @@ export default function SimulacionForm({
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>📅 Plazo (meses)</label>
+          <label style={styles.label}>Plazo (meses)</label>
           <input
             type="number"
             value={plazo}
@@ -92,11 +94,21 @@ export default function SimulacionForm({
               ...(loading ? styles.buttonDisabled : {}),
             }}
           >
-            {loading ? "💾 Guardando..." : "💾 Guardar Simulación"}
+            {loading ? "Guardando..." : "Guardar Simulación"}
           </button>
           <button type="button" onClick={handleLimpiar} style={{ ...styles.button, ...styles.buttonSecondary }}>
-            🔄 Limpiar
+            Limpiar
           </button>
+          {onSolicitar && (
+            <button
+              type="button"
+              disabled={!canSolicitar}
+              onClick={onSolicitar}
+              style={{ ...styles.button, ...styles.buttonPrimary }}
+            >
+              Solicitar!
+            </button>
+          )}
         </div>
       </form>
     </div>
