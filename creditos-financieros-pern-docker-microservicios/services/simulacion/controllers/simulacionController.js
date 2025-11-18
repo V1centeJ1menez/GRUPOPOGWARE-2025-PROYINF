@@ -79,28 +79,25 @@ const simular = async (req, res) => {
     const interesesTotales = montoTotal - monto;
     const cae = calcularCAE(CONFIG.TASA_BASE_ANUAL, gastosOperacionales, comisionApertura, monto);
 
-    // Resultado simplificado
-    const resultado = 'aprobado';
-
     // Guardar en DB
     const query = `
       INSERT INTO simulaciones (
         user_id, monto, plazo, tasa_base, cae, cuota_mensual,
         monto_total, monto_liquido, intereses_totales,
-        gastos_operacionales, comision_apertura, resultado
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+        gastos_operacionales, comision_apertura
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       RETURNING *
     `;
     const values = [
       userId, monto, plazo, CONFIG.TASA_BASE_ANUAL, cae, cuotaMensual,
       montoTotal, montoLiquido, interesesTotales,
-      gastosOperacionales, comisionApertura, resultado,
+      gastosOperacionales, comisionApertura,
     ];
 
     const result = await pool.query(query, values);
     const simulacionGuardada = result.rows[0];
 
-    // Respuesta
+    // Respuesta (simulaciones no contienen estado)
     const simulacion = {
       id: simulacionGuardada.id,
       monto: parseFloat(simulacionGuardada.monto),
@@ -113,7 +110,6 @@ const simular = async (req, res) => {
       interesesTotales: parseFloat(simulacionGuardada.intereses_totales),
       gastosOperacionales: parseFloat(simulacionGuardada.gastos_operacionales),
       comisionApertura: parseFloat(simulacionGuardada.comision_apertura),
-      resultado: simulacionGuardada.resultado,
       fecha: simulacionGuardada.created_at,
     };
 
@@ -154,7 +150,6 @@ const obtenerHistorial = async (req, res) => {
       interesesTotales: parseFloat(row.intereses_totales),
       gastosOperacionales: parseFloat(row.gastos_operacionales),
       comisionApertura: parseFloat(row.comision_apertura),
-      resultado: row.resultado,
       fecha: row.created_at,
     }));
 
@@ -190,7 +185,6 @@ const obtenerPorId = async (req, res) => {
       interesesTotales: parseFloat(row.intereses_totales),
       gastosOperacionales: parseFloat(row.gastos_operacionales),
       comisionApertura: parseFloat(row.comision_apertura),
-      resultado: row.resultado,
       fecha: row.created_at,
     };
 
@@ -271,7 +265,7 @@ const listarTodas = async (req, res) => {
       interesesTotales: parseFloat(row.intereses_totales),
       gastosOperacionales: parseFloat(row.gastos_operacionales),
       comisionApertura: parseFloat(row.comision_apertura),
-      resultado: row.resultado,
+        // resultado removed: estado/resultado handled by solicitudes
       fecha: row.created_at,
     }));
     return res.json(simulaciones);

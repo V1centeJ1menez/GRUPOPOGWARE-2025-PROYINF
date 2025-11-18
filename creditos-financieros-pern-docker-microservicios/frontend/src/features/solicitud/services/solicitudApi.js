@@ -8,6 +8,9 @@ export const crearSolicitud = (data, token) =>
 export const listarSolicitudes = (token) =>
   axios.get(`${API_URL}/api/solicitudes`, { headers: { Authorization: `Bearer ${token}` } });
 
+export const listarTodasSolicitudes = (token) =>
+  axios.get(`${API_URL}/api/solicitudes/admin`, { headers: { Authorization: `Bearer ${token}` } });
+
 export const actualizarEstadoSolicitud = (id, estado, token) =>
   axios.patch(`${API_URL}/api/solicitudes/${id}`, { estado }, { headers: { Authorization: `Bearer ${token}` } });
 
@@ -16,3 +19,9 @@ export const eliminarSolicitud = (id, token) =>
 
 export const obtenerSolicitud = (id, token) =>
   axios.get(`${API_URL}/api/solicitudes/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+
+export const evaluarSolicitudAdmin = (id, token) =>
+  axios.post(`${API_URL}/api/solicitudes/${id}/evaluar`, {}, { headers: { Authorization: `Bearer ${token}` } });
+
+export const listarNotificaciones = (token) =>
+  axios.get(`${API_URL}/api/notificaciones`, { headers: { Authorization: `Bearer ${token}` } });

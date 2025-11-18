@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { popPendingSimulation } from "../../simulacion/utils/localHistory";
 import { formatCurrency } from "../../simulacion/utils/simulacionUtils";
@@ -11,6 +11,13 @@ export default function NuevaSolicitud() {
   const { user } = useContext(AuthContext);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!user) {
+      // Forzar login si no hay usuario: crear solicitud o guardar simulación requiere autenticación
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const borrador = location.state?.solicitud || null;
   const pending = useMemo(() => {

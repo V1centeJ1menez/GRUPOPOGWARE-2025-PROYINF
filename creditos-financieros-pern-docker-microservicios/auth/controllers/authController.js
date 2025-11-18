@@ -2,19 +2,29 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { pool } = require("../db");
 
+const { sendMailIfConfigured } = require('../utils/mailer');
+
 exports.register = async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const { username, email, password, role } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'username, email y password son requeridos' });
+    }
     const hashed = await bcrypt.hash(password, 10);
     const assignedRole = role && role === "admin" ? "admin" : "user"; // seguridad: nadie puede forzar admin fácilmente
     await pool.query(
-      "INSERT INTO users (username, password, role) VALUES ($1, $2, $3)",
-      [username, hashed, assignedRole]
+      "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)",
+      [username, email, hashed, assignedRole]
     );
+    // enviar correo de bienvenida
+    const subject = 'Cuenta creada correctamente';
+    const text = `Hola ${username},\n\nTu cuenta ha sido creada correctamente.\nYa puedes iniciar sesión y continuar con tu solicitud o simulaciones.\n\nSaludos,\nEquipo de Créditos`;
+    await sendMailIfConfigured({ to: email, subject, text });
     res.status(201).send("Usuario creado");
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error en registro");
+    const msg = err?.detail || err?.message || 'Error en registro';
+    res.status(500).json({ error: msg });
   }
 };
 

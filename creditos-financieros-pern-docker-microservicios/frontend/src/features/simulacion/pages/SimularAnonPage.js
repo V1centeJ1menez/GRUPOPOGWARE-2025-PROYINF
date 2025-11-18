@@ -43,7 +43,7 @@ export default function SimularAnonPage() {
     <div style={styles.container}>
       <div style={styles.header}>
         <h1 style={styles.title}>💡 Simula sin registrarte</h1>
-        <p style={styles.subtitle}>Calcula tu cuota al instante y guarda tu simulación localmente. Al registrarte, continuas con los datos precargados.</p>
+        <p style={styles.subtitle}>Calcula tu cuota preliminar y guarda localmente. Tras registrarte podrás crear una Solicitud formal para evaluación.</p>
       </div>
 
       {revisitando && (
@@ -101,8 +101,8 @@ export default function SimularAnonPage() {
             </div>
 
             <div style={styles.buttonGroup}>
-              <button type="submit" style={{ ...styles.button, ...styles.buttonPrimary }}>💾 Guardar localmente</button>
-              <button type="button" onClick={simularTrasRegistro} style={{ ...styles.button, ...styles.buttonSecondary }}>⚡ Simular tras registro!</button>
+              <button type="submit" style={{ ...styles.button, ...styles.buttonPrimary }}>💾 Guardar simulación</button>
+              <button type="button" onClick={simularTrasRegistro} style={{ ...styles.button, ...styles.buttonSecondary }}>⚡ Solicitar tras registro</button>
             </div>
           </form>
         </div>
@@ -119,7 +119,7 @@ export default function SimularAnonPage() {
       </div>
 
       <div style={styles.card}>
-        <h2 style={styles.cardTitle}>📚 Historial local</h2>
+        <h2 style={styles.cardTitle}>📚 Historial de simulaciones</h2>
         <HistorialSimulaciones
           historial={historial}
           loadingHistorial={loadingHistorial}

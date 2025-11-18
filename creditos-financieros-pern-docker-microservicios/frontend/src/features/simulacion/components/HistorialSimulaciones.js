@@ -40,11 +40,9 @@ export default function HistorialSimulaciones({
     <>
       <div style={styles.historialGrid}>
         {historial.map((sim) => (
-          <div key={sim.id} style={styles.historialCard} onClick={() => !modoLocal && handleSeleccionarSimulacion(sim)}>
+          <div key={sim.id} style={styles.historialCard} onClick={() => handleSeleccionarSimulacion && handleSeleccionarSimulacion(sim)}>
             <div style={styles.historialHeader}>
-              <span style={{ ...styles.historialBadge, ...(sim.resultado === "aprobado" ? styles.badgeSuccess : styles.badgeError) }}>
-                {sim.resultado.toUpperCase()}
-              </span>
+              <div style={{ flex: 1 }} />
               <button
                 onClick={(e) => {
                   e.stopPropagation();

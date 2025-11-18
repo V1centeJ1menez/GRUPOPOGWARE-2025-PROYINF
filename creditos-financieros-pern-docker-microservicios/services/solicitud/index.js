@@ -48,6 +48,33 @@ async function ensureDatabase() {
             updated_at TIMESTAMPTZ DEFAULT NOW()
           );
         `);
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS evaluaciones (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            solicitud_id INTEGER,
+            monto NUMERIC,
+            plazo INTEGER,
+            tasa_base NUMERIC,
+            cae NUMERIC,
+            cuota_mensual NUMERIC,
+            decision VARCHAR(16) NOT NULL,
+            score NUMERIC,
+            razones JSONB,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          );
+        `);
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS notificaciones (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            tipo VARCHAR(32) NOT NULL,
+            titulo TEXT,
+            mensaje TEXT,
+            leida BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          );
+        `);
       } finally {
         client.release();
       }

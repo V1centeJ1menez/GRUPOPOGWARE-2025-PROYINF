@@ -41,8 +41,6 @@ export default function useSimulacionAnon() {
     const intereses = Math.round(montoTot - m);
     const cae = parseFloat((tasaAnual + ((gastosOp + comisionAp) / m)).toFixed(6));
 
-    const resultado = m >= CONFIG.MONTO_MIN && p >= CONFIG.PLAZO_MIN && p <= CONFIG.PLAZO_MAX ? "aprobado" : "rechazado";
-
     setVistaPrevia({
       monto: m,
       plazo: p,
@@ -54,7 +52,6 @@ export default function useSimulacionAnon() {
       interesesTotales: intereses,
       gastosOperacionales: gastosOp,
       comisionApertura: comisionAp,
-      resultado,
       scoreInicial: score,
     });
   }, [CONFIG, ingresoMensual]);
@@ -78,8 +75,7 @@ export default function useSimulacionAnon() {
   const handleGuardarLocal = useCallback(() => {
     if (!vistaPrevia) return;
     const saved = addSimulation(vistaPrevia);
-    setSuccess("✅ Simulación guardada localmente");
-    setTimeout(() => setSuccess(null), 3000);
+    // Sin notificaciones en modo anónimo al guardar
     cargarHistorialLocal(4);
     return saved;
   }, [vistaPrevia, cargarHistorialLocal]);

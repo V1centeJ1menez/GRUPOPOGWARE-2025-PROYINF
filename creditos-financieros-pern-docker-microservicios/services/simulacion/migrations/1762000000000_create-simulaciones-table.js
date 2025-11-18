@@ -51,10 +51,7 @@ exports.up = (pgm) => {
       type: 'decimal(15,2)',
       notNull: true,
     },
-    resultado: {
-      type: 'varchar(50)',
-      notNull: true,
-    },
+    // 'resultado' eliminado: el estado/resultado ahora se maneja en la entidad 'solicitudes'
     created_at: {
       type: 'timestamp',
       notNull: true,

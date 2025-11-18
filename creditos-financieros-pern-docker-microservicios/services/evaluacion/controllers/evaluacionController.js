@@ -62,6 +62,9 @@ function evaluarReglas({ monto, plazo, cae }){
   return { decision, score, razones };
 }
 
+// Nueva lógica: solo se aprueban evaluaciones asociadas a una solicitud (solicitudId != null).
+// Si no viene solicitudId se considera una SIMULACIÓN previa y se guarda como 'simulada'.
+// Ya NO se envía correo por simulaciones y el frontend debe guiar a registrar y luego "Solicitar".
 exports.evaluar = async (req, res) => {
   try {
     const payload = decodeToken(req);
@@ -70,39 +73,58 @@ exports.evaluar = async (req, res) => {
     const { solicitudId = null, monto, plazo, tasaBase = null, cae = null, cuotaMensual = null, gastosOperacionales = null, comisionApertura = null } = req.body || {};
     if (!monto || !plazo) return res.status(400).json({ error: 'monto y plazo son requeridos' });
 
-    const { decision, score, razones } = evaluarReglas({ monto, plazo, cae });
+    const reglas = evaluarReglas({ monto, plazo, cae });
     const fechasPago = generarFechasPago(plazo);
+
+    // Ajuste de decisión según tipo (solicitud vs simulación)
+    let decisionFinal = reglas.decision;
+    let esSimulacion = false;
+    if (!solicitudId) { // simulación sin solicitud creada todavía
+      esSimulacion = true;
+      // Nunca aprobar directamente una simulación; convertir a estado 'simulada' independientemente.
+      decisionFinal = 'simulada';
+    }
 
     const insertEval = await pool.query(
       `INSERT INTO evaluaciones (user_id, solicitud_id, monto, plazo, tasa_base, cae, cuota_mensual, decision, score, razones)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [payload.id, solicitudId, monto, plazo, tasaBase, cae, cuotaMensual, decision, score, JSON.stringify(razones)]
+      [payload.id, solicitudId, monto, plazo, tasaBase, cae, cuotaMensual, decisionFinal, reglas.score, JSON.stringify(reglas.razones)]
     );
 
-    const titulo = decision === 'aprobada' ? 'Solicitud aprobada' : (decision === 'rechazada' ? 'Solicitud rechazada' : 'Solicitud en revisión');
-
+    // Construcción de título/mensaje adaptado
     const fmt = (v) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Math.round(Number(v||0)));
     const tasaPct = (((tasaBase ?? cae ?? 0) * 100) || 0).toFixed(2);
 
-    const mensaje = decision === 'aprobada'
-      ? `Aprobada por ${fmt(monto)} a ${plazo} meses. Cuota estimada ${fmt(cuotaMensual)}. Tasa aprox. ${tasaPct}%. Costos: gastos ${fmt(gastosOperacionales||0)}, comisión ${fmt(comisionApertura||0)}. Puedes avanzar a la firma de documentos.`
-      : (decision === 'rechazada' ? `Solicitud rechazada. Motivos: ${(razones||[]).join(', ') || 'criterios de riesgo'}.
-Simula un monto/plazo diferente para reintentar.` : 'Tu solicitud está en revisión. Te avisaremos pronto.');
+    let titulo;
+    let mensaje;
+    if (esSimulacion) {
+      titulo = 'Simulación registrada';
+      mensaje = `Resultado preliminar: score ${reglas.score}. Monto ${fmt(monto)} a ${plazo} meses, cuota estimada ${fmt(cuotaMensual)}. Tasa aprox. ${tasaPct}%. Regístrate/Inicia sesión y genera una solicitud para evaluación formal.`;
+    } else if (decisionFinal === 'aprobada') {
+      titulo = 'Solicitud aprobada';
+      mensaje = `Aprobada por ${fmt(monto)} a ${plazo} meses. Cuota estimada ${fmt(cuotaMensual)}. Tasa aprox. ${tasaPct}%. Costos: gastos ${fmt(gastosOperacionales||0)}, comisión ${fmt(comisionApertura||0)}. Puedes avanzar a la firma de documentos.`;
+    } else if (decisionFinal === 'rechazada') {
+      titulo = 'Solicitud rechazada';
+      mensaje = `Solicitud rechazada. Motivos: ${(reglas.razones||[]).join(', ') || 'criterios de riesgo'}.
+Simula un monto/plazo diferente para reintentar.`;
+    } else {
+      titulo = 'Solicitud en revisión';
+      mensaje = 'Tu solicitud está en revisión. Te avisaremos pronto.';
+    }
 
     const insertNotif = await pool.query(
       `INSERT INTO notificaciones (user_id, tipo, titulo, mensaje) VALUES ($1,$2,$3,$4) RETURNING *`,
-      [payload.id, 'evaluacion', titulo, mensaje]
+      [payload.id, esSimulacion ? 'simulacion' : 'evaluacion', titulo, mensaje]
     );
 
-    // Envío opcional de correo si tenemos destino
-    const maybeEmail = (payload.username && /@/.test(payload.username)) ? payload.username : (req.body?.email || null);
-    if (decision === 'aprobada' && maybeEmail) {
-      // No bloquear la respuesta HTTP por envío de correo
-      sendMailSafe({ to: maybeEmail, subject: titulo, text: mensaje })
-        .catch(() => {/* noop */});
+    // Envío de correo SOLO si es solicitud aprobada (no simulaciones)
+    const maybeEmail = (!esSimulacion && payload.username && /@/.test(payload.username)) ? payload.username : null;
+    if (!esSimulacion && decisionFinal === 'aprobada' && maybeEmail) {
+      sendMailSafe({ to: maybeEmail, subject: titulo, text: mensaje }).catch(() => {});
     }
 
     return res.json({
+      tipo: esSimulacion ? 'simulacion' : 'solicitud',
       evaluacion: insertEval.rows[0],
       notificacion: insertNotif.rows[0],
       detalle: {
@@ -113,12 +135,39 @@ Simula un monto/plazo diferente para reintentar.` : 'Tu solicitud está en revis
         cuotaMensual,
         gastosOperacionales,
         comisionApertura,
-        fechasPago
+        fechasPago,
+        score: reglas.score,
+        razones: reglas.razones
       }
     });
   } catch (e) {
     console.error('[evaluacion] error evaluar:', e);
-    res.status(500).json({ error: 'Error al evaluar solicitud' });
+    res.status(500).json({ error: 'Error al evaluar' });
+  }
+};
+
+// Endpoint público de simulación SIN autenticación: no persiste en BD, sólo devuelve cálculo.
+exports.simularPublica = async (req, res) => {
+  try {
+    const { monto, plazo, tasaBase = null, cae = null } = req.body || {};
+    if (!monto || !plazo) return res.status(400).json({ error: 'monto y plazo son requeridos' });
+    const reglas = evaluarReglas({ monto, plazo, cae });
+    const fechasPago = generarFechasPago(plazo);
+    const fmt = (v) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(Math.round(Number(v||0)));
+    return res.json({
+      tipo: 'simulacion_publica',
+      preliminar: true,
+      score: reglas.score,
+      rangoDecision: reglas.decision, // puede ser en_revision/aprobada/rechazada pero NO es aprobación formal
+      mensaje: 'Regístrate y crea una solicitud para evaluación formal. Esta es solo una simulación preliminar.',
+      monto: fmt(monto),
+      plazo_meses: plazo,
+      tasaAproxPct: (((tasaBase ?? cae ?? 0) * 100) || 0).toFixed(2),
+      fechasPago
+    });
+  } catch (e) {
+    console.error('[evaluacion] error simulacion publica:', e);
+    res.status(500).json({ error: 'Error al simular' });
   }
 };
 

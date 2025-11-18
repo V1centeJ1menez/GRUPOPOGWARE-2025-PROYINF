@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { evaluar, listarNotificaciones, marcarNotificacionLeida, obtenerUltimaEvaluacion } = require('../controllers/evaluacionController');
+const { evaluar, listarNotificaciones, marcarNotificacionLeida, obtenerUltimaEvaluacion, simularPublica } = require('../controllers/evaluacionController');
 
 router.post('/evaluar', evaluar);
+router.post('/simular', simularPublica); // simulación sin autenticación ni persistencia
 router.get('/notificaciones', listarNotificaciones);
 router.patch('/notificaciones/:id/leida', marcarNotificacionLeida);
 router.get('/evaluaciones/ultima', obtenerUltimaEvaluacion);

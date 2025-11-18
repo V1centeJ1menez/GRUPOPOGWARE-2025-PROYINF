@@ -75,6 +75,7 @@ const styles = {
   badge: { display: 'inline-block', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: '600', marginBottom: '20px' },
   badgeSuccess: { backgroundColor: '#d4edda', color: '#155724' },
   badgeError: { backgroundColor: '#f8d7da', color: '#721c24' },
+  badgeNeutral: { backgroundColor: '#e2e3e5', color: '#343a40' },
   cuotaBox: { backgroundColor: '#f0f4ff', padding: '24px', borderRadius: '12px', textAlign: 'center', marginBottom: '24px' },
   cuotaLabel: { fontSize: '14px', color: '#6c757d', marginBottom: '8px' },
   cuotaValue: { fontSize: '36px', fontWeight: 'bold', color: '#667eea' },

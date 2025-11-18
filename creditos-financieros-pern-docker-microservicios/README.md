@@ -34,6 +34,7 @@ Nota: el usuario final solo interactúa con el frontend. Los microservicios (por
 - **Migraciones:** node-pg-migrate
 - **Contenedorización:** Docker, Docker Compose
 - **Administración BD:** pgAdmin 4
+- **Correo dev:** MailHog (SMTP 1025, UI 8025)
 
 ## Estructura del Proyecto
 
@@ -114,6 +115,10 @@ docker compose up -d --build
 2. **pgAdmin:** http://localhost:5050 - Login: `admin@admin.com` / `admin`
 3. **Registrar usuario:** Click en "Register", llenar formulario, verificar que funcione
 4. **Login:** Iniciar sesión y verificar redirección a dashboard
+5. **Correos (MailHog):** Abrir http://localhost:8025 y validar correos de:
+  - Bienvenida tras registro
+  - Cambios de estado de solicitudes (enviada/aprobada/rechazada)
+  - Resultados de evaluación
 
 ### Resultado Esperado
 
@@ -122,3 +127,4 @@ docker compose up -d --build
 - Script de test muestra checkmarks verdes sin errores
 - Frontend permite registro, login y navegación
 - pgAdmin se conecta a la base de datos auth_db
+- MailHog muestra los correos generados por los servicios `auth` y `solicitud`

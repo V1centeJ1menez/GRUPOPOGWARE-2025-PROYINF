@@ -10,6 +10,7 @@ services:
       - "4001:4000"
     depends_on:
       - db_auth
+      - mailhog
 
   db_auth:
     image: postgres:16
@@ -98,6 +99,7 @@ services:
       - "3003:3003"
     depends_on:
       - db_solicitud
+      - mailhog
 
   db_solicitud:
     image: postgres:16
@@ -148,7 +150,17 @@ services:
       echo 'Gateway:    http://localhost:8080' &&
       echo 'Auth:       http://localhost:4000' &&
       echo 'pgAdmin:    http://localhost:5050 (admin@admin.com / admin)' &&
+      echo 'MailHog UI: http://localhost:8025 (SMTP en :1025)' &&
       echo '-----------------------------------------------'"
+
+  # ==========================
+  # MAILHOG (SMTP + WEB UI)
+  # ==========================
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
 
 volumes:
   db_auth_data:

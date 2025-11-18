@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { crear, listar, listarTodas, obtenerPorId, actualizarEstado, eliminar, evaluarSolicitud } = require('../controllers/solicitudController');
+const { crear, listar, listarTodas, obtenerPorId, actualizarEstado, eliminar, evaluarSolicitud, listarNotificaciones } = require('../controllers/solicitudController');
 
 // CRUD básico para solicitudes del usuario autenticado
 router.post('/solicitudes', crear);
@@ -12,5 +12,8 @@ router.patch('/solicitudes/:id', actualizarEstado);
 router.delete('/solicitudes/:id', eliminar);
 // Evaluación de solicitud (invoca microservicio evaluación y actualiza estado)
 router.post('/solicitudes/:id/evaluar', evaluarSolicitud);
+
+// Notificaciones del usuario autenticado
+router.get('/notificaciones', listarNotificaciones);
 
 module.exports = router;

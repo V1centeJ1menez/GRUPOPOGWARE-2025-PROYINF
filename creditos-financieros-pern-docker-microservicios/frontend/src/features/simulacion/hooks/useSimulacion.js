@@ -40,8 +40,6 @@ export default function useSimulacion(user) {
     const montoTot = Math.round(cuota * p);
     const intereses = Math.round(montoTot - m);
     const cae = parseFloat((CONFIG.TASA_BASE_ANUAL + ((gastosOp + comisionAp) / m)).toFixed(6));
-    const resultado = m >= CONFIG.MONTO_MIN && p >= CONFIG.PLAZO_MIN && p <= CONFIG.PLAZO_MAX ? "aprobado" : "rechazado";
-
     setVistaPrevia({
       monto: m,
       plazo: p,
@@ -53,7 +51,6 @@ export default function useSimulacion(user) {
       interesesTotales: intereses,
       gastosOperacionales: gastosOp,
       comisionApertura: comisionAp,
-      resultado,
     });
   }, [CONFIG]);
 

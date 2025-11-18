@@ -100,7 +100,7 @@ export default function SimulacionDetalle() {
 
   if (!sim) return null;
 
-  const aprobado = sim.resultado === "aprobado";
+  
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
@@ -114,17 +114,7 @@ export default function SimulacionDetalle() {
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={card}>
-          <div style={{
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 12,
-            color: aprobado ? "#155724" : "#721c24",
-            background: aprobado ? "#d4edda" : "#f8d7da",
-            textAlign: "center",
-            fontWeight: 700,
-          }}>
-            {aprobado ? "✅ Aprobado" : "❌ Rechazado"}
-          </div>
+          {/* Detalle de simulación (sin estado) */}
 
           <div style={{ background: "#f0f4ff", padding: 16, borderRadius: 10, textAlign: "center", marginBottom: 12 }}>
             <div style={{ fontSize: 12, color: "#6c757d", marginBottom: 6 }}>Cuota mensual</div>

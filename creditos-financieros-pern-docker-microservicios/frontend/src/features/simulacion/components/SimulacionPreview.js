@@ -16,14 +16,7 @@ export default function SimulacionPreview({
 
       {vistaPrevia ? (
         <>
-          <div
-            style={{
-              ...styles.badge,
-              ...(vistaPrevia.resultado === "aprobado" ? styles.badgeSuccess : styles.badgeError),
-            }}
-          >
-            {vistaPrevia.resultado === "aprobado" ? "✅ Aprobado" : "❌ Rechazado"}
-          </div>
+          {/* Simulación preliminar: no mostrar estado/etiqueta en componentes de simulación */}
 
           <div style={styles.cuotaBox}>
             <div style={styles.cuotaLabel}>Tu cuota mensual será:</div>

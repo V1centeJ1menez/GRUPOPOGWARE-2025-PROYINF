@@ -16,6 +16,8 @@ router.get('/historial', obtenerHistorial);
 // GET /admin/all - Listar todas las simulaciones (solo admin)
 router.get('/admin/all', listarTodas);
 
+// note: resultado/estado handled by 'solicitud' entity; no admin update on simulaciones
+
 // GET /:id - Obtener una simulación específica
 router.get('/:id', obtenerPorId);
 

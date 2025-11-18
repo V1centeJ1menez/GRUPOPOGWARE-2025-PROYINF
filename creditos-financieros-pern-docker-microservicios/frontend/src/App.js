@@ -14,6 +14,8 @@ import NuevaSolicitud from "./features/solicitud/pages/NuevaSolicitud";
 import SolicitudSuccess from "./features/solicitud/pages/SolicitudSuccess";
 import AdminRoute from "./app/components/AdminRoute";
 import AdminHome from "./features/admin/pages/AdminHome";
+import AdminSolicitudes from "./features/solicitud/pages/AdminSolicitudes";
+import SolicitudDetalle from "./features/solicitud/pages/SolicitudDetalle";
 
 function App() {
   return (
@@ -73,6 +75,22 @@ function App() {
             element={
               <AdminRoute>
                 <AdminHome />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/solicitudes"
+            element={
+              <AdminRoute>
+                <AdminSolicitudes />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/solicitudes/:id"
+            element={
+              <AdminRoute>
+                <SolicitudDetalle />
               </AdminRoute>
             }
           />

@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User, pool } = require("./models/User");
+const { sendMailIfConfigured } = require('./utils/mailer');
 require("dotenv").config();
 
 const app = express();
@@ -44,7 +45,12 @@ app.post("/register", async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const newUser = await User.create(username, email, hashed);
-    
+
+    // Enviar correo de bienvenida (si SMTP configurado, de lo contrario se simula)
+    const subject = 'Cuenta creada correctamente';
+    const text = `Hola ${username},\n\nTu cuenta ha sido creada correctamente.\nYa puedes iniciar sesión y continuar con tu solicitud o simulaciones.\n\nSaludos,\nEquipo de Créditos`;
+    await sendMailIfConfigured({ to: email, subject, text });
+
     res.json({ message: "Usuario creado", userId: newUser.id });
   } catch (err) {
     console.error("/register error:", err);

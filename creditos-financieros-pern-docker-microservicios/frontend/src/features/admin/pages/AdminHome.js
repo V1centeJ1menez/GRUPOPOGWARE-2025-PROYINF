@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../auth/authContext';
+import { actualizarEstadoSolicitud } from '../../solicitud/services/solicitudApi';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 export default function AdminHome() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [tab, setTab] = useState('solicitudes');
   const [sols, setSols] = useState([]);
   const [sims, setSims] = useState([]);
@@ -13,6 +16,7 @@ export default function AdminHome() {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +51,30 @@ export default function AdminHome() {
     fetchData();
   }, [tab, user?.token]);
 
+  const reloadSolicitudes = async () => {
+    try {
+      const resp = await axios.get(`${API_BASE}/solicitud/api/solicitudes/admin`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      setSols(resp.data || []);
+    } catch (e) {
+      setError(e.response?.data?.error || e.message);
+    }
+  };
+
+  const changeEstado = async (id, estado) => {
+    if (!window.confirm(`¿Confirmar cambiar estado a '${estado}'?`)) return;
+    setActionLoading(true);
+    try {
+      await actualizarEstadoSolicitud(id, estado, user.token);
+      await reloadSolicitudes();
+    } catch (e) {
+      setError(e.response?.data?.error || e.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}>
       <h2 style={{ marginTop: 0 }}>Panel de Administración</h2>
@@ -60,25 +88,25 @@ export default function AdminHome() {
             {tab === 'simulaciones' && (
               <div style={card}>
                 <h3>Simulaciones</h3>
-                <table style={table}>
-                  <thead>
-                    <tr><th>ID</th><th>User</th><th>Monto</th><th>Plazo</th><th>Cuota</th><th>Tasa Base</th><th>CAE</th><th>Fecha</th></tr>
-                  </thead>
-                  <tbody>
-                    {sims.map(s => (
-                      <tr key={s.id}>
-                        <td>{s.id}</td>
-                        <td>{s.user_id}</td>
-                        <td>{formatCurrency(s.monto)}</td>
-                        <td>{s.plazo}</td>
-                        <td>{formatCurrency(s.cuotaMensual)}</td>
-                        <td>{formatPercent(s.tasaBase)}</td>
-                        <td>{formatPercent(s.cae)}</td>
-                        <td>{new Date(s.fecha).toLocaleString('es-CL')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  <table style={table}>
+                    <thead>
+                      <tr><th>ID</th><th>User</th><th>Monto</th><th>Plazo</th><th>Cuota</th><th>Tasa Base</th><th>CAE</th><th>Fecha</th></tr>
+                    </thead>
+                    <tbody>
+                      {sims.map(s => (
+                        <tr key={s.id}>
+                          <td>{s.id}</td>
+                          <td>{s.user_id}</td>
+                          <td>{formatCurrency(s.monto)}</td>
+                          <td>{s.plazo}</td>
+                          <td>{formatCurrency(s.cuotaMensual)}</td>
+                          <td>{formatPercent(s.tasaBase)}</td>
+                          <td>{formatPercent(s.cae)}</td>
+                          <td>{new Date(s.fecha).toLocaleString('es-CL')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
               </div>
             )}
       {loading && <div>Cargando...</div>}
@@ -89,7 +117,7 @@ export default function AdminHome() {
           <h3>Solicitudes</h3>
           <table style={table}>
             <thead>
-              <tr><th>ID</th><th>User</th><th>Monto</th><th>Plazo</th><th>Estado</th><th>Fecha</th></tr>
+              <tr><th>ID</th><th>User</th><th>Monto</th><th>Plazo</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr>
             </thead>
             <tbody>
               {sols.map(s => (
@@ -100,6 +128,13 @@ export default function AdminHome() {
                   <td>{s.plazo}</td>
                   <td>{s.estado}</td>
                   <td>{new Date(s.created_at).toLocaleString('es-CL')}</td>
+                  <td>
+                    <div style={{ display:'flex', gap: 6 }}>
+                      <button onClick={() => navigate(`/admin/solicitudes/${s.id}`)}>Ver detalle</button>
+                      <button disabled={actionLoading} onClick={() => changeEstado(s.id, 'aprobada')}>Aceptar</button>
+                      <button disabled={actionLoading} onClick={() => changeEstado(s.id, 'rechazada')}>Rechazar</button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
