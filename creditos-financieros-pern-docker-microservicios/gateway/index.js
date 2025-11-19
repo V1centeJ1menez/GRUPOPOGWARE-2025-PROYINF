@@ -37,11 +37,20 @@ const proxyRequest = (serviceUrl) => async (req, res) => {
     }
     res.status(response.status).json(response.data);
   } catch (error) {
+    const isNetErr = [
+      'ENOTFOUND', 'ECONNREFUSED', 'EAI_AGAIN', 'ETIMEDOUT', 'ECONNRESET'
+    ].includes(error?.code);
+    const target = serviceUrl || 'desconocido';
     console.error("[Gateway] Error proxying", req.method, req.originalUrl, {
       message: error.message,
+      code: error.code,
       status: error.response?.status,
       data: error.response?.data,
+      target,
     });
+    if (isNetErr) {
+      return res.status(503).json({ error: `Servicio no disponible: ${target}` });
+    }
     const status = error.response?.status || 500;
     const data = error.response?.data || { error: "Error en gateway" };
     res.status(status).json(data);

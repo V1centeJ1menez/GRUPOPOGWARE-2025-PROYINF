@@ -1,6 +1,6 @@
 exports.up = (pgm) => {
   // Eliminar la columna resultado si existe
-  pgm.dropColumn('simulaciones', 'resultado');
+  pgm.dropColumn('simulaciones', 'resultado', { ifExists: true });
 };
 
 exports.down = (pgm) => {

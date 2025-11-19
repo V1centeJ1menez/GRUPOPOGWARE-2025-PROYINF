@@ -4,4 +4,4 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 3003
-CMD npm run migrate && npm start
+CMD node wait-for-db.js && npm run migrate && npm start
