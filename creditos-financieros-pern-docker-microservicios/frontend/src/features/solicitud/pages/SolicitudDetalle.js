@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../auth/authContext';
 import { obtenerSolicitud, actualizarEstadoSolicitud } from '../services/solicitudApi';
+import { iniciarFirma } from '../../firma/services/firmaApi';
+import { procesarDesembolso } from '../../desembolso/services/desembolsoApi';
 
 export default function SolicitudDetalle() {
   const { id } = useParams();
@@ -14,6 +16,10 @@ export default function SolicitudDetalle() {
   const isAdmin = user?.role === 'admin';
 
   const fetchDetalle = async () => {
+
+
+
+
     if (!user?.token) return;
     setLoading(true);
     try {
@@ -26,6 +32,29 @@ export default function SolicitudDetalle() {
       setLoading(false);
     }
   };
+      const handleFirma = async () => {
+      setActionLoading(true);
+      try {
+        await iniciarFirma(id, user.token);
+        fetchDetalle(); 
+      } catch {
+        setError("Error ejecutando firma");
+      } finally {
+        setActionLoading(false);
+      }
+    };
+
+    const handleDesembolso = async () => {
+      setActionLoading(true);
+      try {
+        await procesarDesembolso(id, user.token);
+        fetchDetalle();
+      } catch {
+        setError("Error procesando desembolso");
+      } finally {
+        setActionLoading(false);
+      }
+    };
 
   useEffect(() => { fetchDetalle(); }, [id, user?.token]);
 
@@ -79,9 +108,13 @@ export default function SolicitudDetalle() {
                 {isAdmin ? (
                   <>
                     <button disabled={actionLoading} onClick={() => changeEstado('aprobada')}>Aceptar</button>
+                    <button disabled={actionLoading} onClick={handleFirma}>Firma</button>
+                    <button disabled={actionLoading} onClick={handleDesembolso}>Desembolsar</button>
+
                     <button disabled={actionLoading} onClick={() => changeEstado('rechazada')}>Rechazar</button>
-                    <button disabled={actionLoading} onClick={handleReevaluarToEnviada} title="Reinicia a estado 'enviada'">Re-evaluar</button>
+                    <button disabled={actionLoading} onClick={handleReevaluarToEnviada}>Re-evaluar</button>
                   </>
+
                 ) : (
                   <div style={{ color: '#666' }}>Acciones reservadas a administradores</div>
                 )}
@@ -94,6 +127,24 @@ export default function SolicitudDetalle() {
                 <div>Decisión: <strong>{detalle.evaluacion.decision}</strong></div>
                 <div>Score: {detalle.evaluacion.score}</div>
                 <div>Razones: <pre style={{ whiteSpace: 'pre-wrap' }}>{detalle.evaluacion.razones}</pre></div>
+                {detalle.estado === 'aprobada' && !detalle.firmada && (
+                  <button onClick={() => navigate(`/firma/${id}`)}>
+                    Firmar crédito
+                  </button>
+                )}
+
+                {detalle.firmada && detalle.estado === 'firmada' && (
+                  <button onClick={() => navigate(`/desembolso/${id}`)}>
+                    Solicitar desembolso
+                  </button>
+                )}
+
+                {detalle.estado === 'desembolsada' && (
+                  <div style={{marginTop:10, fontWeight:'bold', color:'green'}}>
+                    Solicitud completada 🎉
+                  </div>
+                )}
+
               </div>
             )}
 

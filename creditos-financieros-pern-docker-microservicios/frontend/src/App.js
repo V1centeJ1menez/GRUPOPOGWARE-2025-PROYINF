@@ -16,6 +16,8 @@ import AdminRoute from "./app/components/AdminRoute";
 import AdminHome from "./features/admin/pages/AdminHome";
 import AdminSolicitudes from "./features/solicitud/pages/AdminSolicitudes";
 import SolicitudDetalle from "./features/solicitud/pages/SolicitudDetalle";
+import Firma from "./features/firma/pages/Firma";
+
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/register/success" element={<RegisterSuccess />} />
+          <Route path="/firma/:id" element={<Firma />} />
+
           {/* Simulación pública sin registro */}
           <Route path="/simular" element={<SimularAnonPage />} />
           <Route

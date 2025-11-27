@@ -25,3 +25,6 @@ export const evaluarSolicitudAdmin = (id, token) =>
 
 export const listarNotificaciones = (token) =>
   axios.get(`${API_URL}/api/notificaciones`, { headers: { Authorization: `Bearer ${token}` } });
+
+export const obtenerPorId = (id, token) =>
+  axios.get(`${API_URL}/api/solicitudes/${id}`, { headers: { Authorization: `Bearer ${token}` } });

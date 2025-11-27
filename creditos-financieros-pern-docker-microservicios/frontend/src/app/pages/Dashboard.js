@@ -31,7 +31,6 @@ export default function Dashboard() {
     } catch {}
   }, []);
 
-  // notifications removed per UX: no notification box shown in dashboard
 
 
   useEffect(() => {
@@ -78,7 +77,7 @@ export default function Dashboard() {
     fetchSims();
     fetchNotifs();
 
-    // Poll solicitudes every 10s so user sees admin updates without manual refresh
+    //Recargar cda 10s
     const solicitudesInterval = setInterval(fetchSolicitudes, 10000);
     const notifsInterval = setInterval(fetchNotifs, 15000);
     return () => { clearInterval(solicitudesInterval); clearInterval(notifsInterval); };
@@ -99,7 +98,7 @@ export default function Dashboard() {
       <div style={{ margin: "24px 0" }}>
         <Button variant="contained" color="primary" onClick={() => navigate("/simulacion")}>Simular crédito</Button>
       </div>
-      {/* notification box removed as requested */}
+      {/*  */}
 
       <div style={{ marginTop: 24 }}>
         <h3 style={{ marginBottom: 8 }}>Notificaciones</h3>
@@ -200,41 +199,61 @@ export default function Dashboard() {
           </div>
         )}
 
-        {otras.length > 0 && (
-          <div style={card}>
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>En trámite / Historial ({otras.length})</div>
-            <div style={{ display: 'grid', gap: 8 }}>
-              {otras.map(s => (
-                <div key={s.id} style={row}>
-                  <div>
-                    <div style={muted}>ID #{s.id}</div>
+          {otras.length > 0 && (
+            <div style={card}>
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>En trámite / Historial ({otras.length})</div>
+              <div style={{ display: 'grid', gap: 8 }}>
+                {otras.map(s => (
+                  <div key={s.id} style={row}>
                     <div>
-                      Monto: <strong>${Number(s.monto).toLocaleString()}</strong> • Plazo: <strong>{s.plazo} meses</strong>
+                      <div style={muted}>ID #{s.id}</div>
+                      <div>
+                        Monto: <strong>${Number(s.monto).toLocaleString()}</strong> • Plazo: <strong>{s.plazo} meses</strong>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+
+                      {/* Estado visual */}
+                      <span
+                        style={{
+                          ...badge,
+                          ...(String(s.estado).toLowerCase() === 'aprobada' ? badgeSuccess
+                            : String(s.estado).toLowerCase() === 'rechazada' ? badgeError
+                            : String(s.estado).toLowerCase() === 'enviada' || String(s.estado).toLowerCase() === 'en_revision' ? badgeInfo
+                            : badgeMuted)
+                        }}
+                      >
+                        Estado: {s.estado || '—'}
+                      </span>
+
+
+                      {String(s.estado).toLowerCase() === 'aprobada' && (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => navigate(`/firma/${s.id}`)}
+                        >
+                          Firmar contrato
+                        </Button>
+                      )}
+
+
+                      {s.evaluacion && (
+                        <div style={{ textAlign: 'right', fontSize: 13, color: '#374151' }}>
+                          Decisión: <strong>{s.evaluacion.decision || '—'}</strong>
+                          {typeof s.evaluacion.score !== 'undefined' ? ` · Score: ${s.evaluacion.score}` : ''}
+                        </div>
+                      )}
+
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span
-                      style={{
-                        ...badge,
-                        ...(String(s.estado).toLowerCase() === 'aprobada' ? badgeSuccess
-                          : String(s.estado).toLowerCase() === 'rechazada' ? badgeError
-                          : String(s.estado).toLowerCase() === 'enviada' || String(s.estado).toLowerCase() === 'en_revision' ? badgeInfo
-                          : badgeMuted)
-                      }}
-                    >
-                      Estado: {s.estado || '—'}
-                    </span>
-                    {s.evaluacion && (
-                      <div style={{ textAlign: 'right', fontSize: 13, color: '#374151' }}>
-                        Decisión: <strong>{s.evaluacion.decision || '—'}</strong>{typeof s.evaluacion.score !== 'undefined' ? ` · score: ${s.evaluacion.score}` : ''}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
       </div>
       <Button variant="outlined" color="error" onClick={logout}>
         Cerrar sesión
