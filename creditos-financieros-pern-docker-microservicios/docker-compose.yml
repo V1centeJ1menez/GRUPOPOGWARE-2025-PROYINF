@@ -45,7 +45,57 @@ services:
       - db_simulacion_data:/var/lib/postgresql/data
     ports:
       - "5402:5432"
-      
+  # ==========================
+  # Firma SERVICE
+  # ========================== 
+  firma:
+    build: ./services/firma
+    env_file:
+      - ./services/firma/.env
+    ports:
+      - "3005:3005"
+    depends_on:
+      - db_firma       
+
+  db_firma:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: firma_db
+    volumes:
+      - db_firma_data:/var/lib/postgresql/data
+    ports:
+      - "5405:5432"
+
+
+  # ==========================
+  # Desembolso SERVICE
+  # ========================== 
+  desembolso:
+    build: ./services/desembolso
+    env_file:
+      - ./services/desembolso/.env
+    ports:
+      - "3006:3006"
+    depends_on:
+      - db_desembolso  
+
+  db_desembolso:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: desembolso_db
+    volumes:
+      - db_desembolso_data:/var/lib/postgresql/data
+    ports:
+      - "5406:5432"
+
+
+
+
+
   # ==========================
   # PGADMIN WEB INTERFACE
   # ==========================
@@ -168,3 +218,5 @@ volumes:
   pgadmin_data:
   db_solicitud_data:
   db_evaluacion_data:
+  db_firma_data:
+  db_desembolso_data:
