@@ -1,17 +1,18 @@
 const express = require("express");
-const { Pool } = require("pg");
 require("dotenv").config();
 
 const app = express();
+
+app.use((req, res, next) => {
+  console.log(`Firma service request: ${req.method} ${req.url}`);
+  next();
+});
+
 app.use(express.json());
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
-});
+// Import and mount routes
+const firmaRoutes = require('./routes/firmaRoutes');
+app.use('/', firmaRoutes);
 
 app.get("/", (req, res) => {
   res.send("Servicio Firma funcionando 🚀");

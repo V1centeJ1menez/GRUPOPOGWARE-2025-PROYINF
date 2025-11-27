@@ -77,6 +77,7 @@ function fechaPrimerPagoStr() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+
 exports.crear = async (req, res) => {
   try {
     const userId = getUserIdFromToken(req);
@@ -157,13 +158,9 @@ exports.listar = async (req, res) => {
         );
         ultimaEval = evalRes.rows[0] || null;
       } catch (e) {
-        // Si la tabla 'evaluaciones' no existe en esta BD (42P01), no falle: dejamos evaluacion null
-        if (e && e.code === '42P01') {
-          console.warn('Tabla evaluaciones no encontrada, omitiendo evaluación para solicitudes');
-          ultimaEval = null;
-        } else {
-          throw e;
-        }
+        // Ignorar CUALQUIER error de evaluación (tabla no existe, columna faltante, etc.)
+        console.warn('Evaluación omitida para solicitud', row.id, e.message);
+        ultimaEval = null;
       }
 
       solicitudes.push({
@@ -188,22 +185,19 @@ exports.listarTodas = async (req, res) => {
 
     // Añadir última evaluación por solicitud (si existe)
     const solicitudes = [];
-    for (const row of result.rows) {
-      let ultimaEval = null;
-      try {
-        const evalRes = await pool.query(
-          `SELECT decision, score, razones, created_at FROM evaluaciones WHERE solicitud_id=$1 ORDER BY created_at DESC LIMIT 1`,
-          [row.id]
-        );
-        ultimaEval = evalRes.rows[0] || null;
-      } catch (e) {
-        if (e && e.code === '42P01') {
-          console.warn('Tabla evaluaciones no encontrada, omitiendo evaluación para solicitudes');
-          ultimaEval = null;
-        } else {
-          throw e;
-        }
-      }
+        for (const row of result.rows) {
+          let ultimaEval = null;
+          try {
+            const evalRes = await pool.query(
+              `SELECT decision, score, razones, created_at FROM evaluaciones WHERE solicitud_id=$1 ORDER BY created_at DESC LIMIT 1`,
+              [row.id]
+            );
+            ultimaEval = evalRes.rows[0] || null;
+          } catch (e) {
+            // Ignorar CUALQUIER error de evaluación (tabla no existe, columna faltante, etc.)
+            console.warn('Evaluación omitida (admin) para solicitud', row.id, e.message || e);
+            ultimaEval = null;
+          }
 
       solicitudes.push({
         ...row,
@@ -265,43 +259,55 @@ exports.actualizarEstado = async (req, res) => {
     const isAdmin = isAdminFromToken(req);
 
     const { id } = req.params;
-    const { estado } = req.body;
-    if (!estado) return res.status(400).json({ error: 'Estado es requerido' });
+    const updates = req.body;
+    if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'No fields to update' });
 
-    // Para cambios sensibles (aprobada/rechazada) sólo admin puede hacerlo
-    const estadoLower = (estado || '').toLowerCase();
-    if (['aprobada', 'rechazada'].includes(estadoLower) && !isAdmin) {
-      return res.status(403).json({ error: 'Sólo administradores pueden aprobar o rechazar solicitudes' });
+    // Verify ownership or admin
+    const checkRes = await pool.query(`SELECT * FROM solicitudes WHERE id=$1`, [id]);
+    if (checkRes.rows.length === 0) return res.status(404).json({ error: 'Solicitud no encontrada' });
+    const solicitud = checkRes.rows[0];
+    if (Number(solicitud.user_id) !== Number(userId) && !isAdmin) {
+      return res.status(403).json({ error: 'No autorizado' });
     }
 
-    // Si es admin puede actualizar cualquier solicitud; si no, sólo la propia
-    const params = isAdmin ? [estado, id] : [estado, id, userId];
-    const where = isAdmin ? `id=$2` : `id=$2 AND user_id=$3`;
-    const result = await pool.query(
-      `UPDATE solicitudes SET estado=$1, updated_at=NOW() WHERE ${where} RETURNING *`,
-      params
-    );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Solicitud no encontrada o no autorizado' });
+    // Restrict sensitive changes
+    const estadoLower = (updates.estado || '').toLowerCase();
+    if (['aprobada', 'rechazada', 'firmada'].includes(estadoLower) && !isAdmin) {
+      return res.status(403).json({ error: 'Sólo administradores pueden cambiar a este estado' });
+    }
+
+    // Build dynamic update query
+    const setClauses = [];
+    const values = [];
+    let paramIndex = 1;
+    for (const [key, value] of Object.entries(updates)) {
+      setClauses.push(`${key} = $${paramIndex}`);
+      values.push(value);
+      paramIndex++;
+    }
+    values.push(id);
+    const updateQ = `UPDATE solicitudes SET ${setClauses.join(', ')}, updated_at=NOW() WHERE id=$${paramIndex} RETURNING *`;
+    const result = await pool.query(updateQ, values);
     const updated = result.rows[0];
 
-    // Notificar al usuario si la solicitud fue aprobada o rechazada
-    const estadoNuevo = (updated.estado || '').toLowerCase();
-    if (['aprobada', 'rechazada'].includes(estadoNuevo)) {
-      const titulo = estadoNuevo === 'aprobada' ? 'Solicitud aprobada' : 'Solicitud rechazada';
-      const detalle = `Monto: ${formatCLP(updated.monto)} · Plazo: ${updated.plazo} meses · Cuota: ${formatCLP(updated.cuota_mensual)} · Tasa base: ${formatPercent(updated.tasa_base)} · CAE: ${formatPercent(updated.cae)} · Gastos: ${formatCLP(updated.gastos_operacionales)} · Comisión: ${formatCLP(updated.comision_apertura)} · Primer pago: ${fechaPrimerPagoStr()}`;
-      const msgAprob = `${detalle}. ¡Puedes continuar con los siguientes pasos!`;
-      const msgRech = `${detalle}. Puedes volver a simular o contactarnos para más información.`;
-      await crearNotificacion(updated.user_id, 'solicitud', titulo, estadoNuevo === 'aprobada' ? msgAprob : msgRech);
+    // Notificar al usuario si la solicitud fue aprobada o rechazada (or firmada)
+    if (['aprobada', 'rechazada', 'firmada'].includes(estadoLower)) {
+      const titulo = estadoLower === 'aprobada' ? 'Solicitud aprobada' : estadoLower === 'rechazada' ? 'Solicitud rechazada' : 'Solicitud firmada';
+      const detalle = `Monto: ${formatCLP(updated.monto)} · Plazo: ${updated.plazo} meses · Cuota estimada: ${formatCLP(updated.cuota_mensual)} · Tasa base: ${formatPercent(updated.tasa_base)} · CAE: ${formatPercent(updated.cae)} · Gastos: ${formatCLP(updated.gastos_operacionales)} · Comisión: ${formatCLP(updated.comision_apertura)} · Primer pago: ${fechaPrimerPagoStr()}`;
+      const msg = estadoLower === 'aprobada' ? `${detalle}. ¡Puedes continuar con los siguientes pasos!` 
+        : estadoLower === 'rechazada' ? `${detalle}. Puedes volver a simular o contactarnos para más información.` 
+        : `${detalle}. Proceda al desembolso.`;
+      await crearNotificacion(updated.user_id, 'solicitud', titulo, msg);
     }
 
-    // Enviar correo informando cambio de estado (aprobada/rechazada/enviada)
-    if (['aprobada', 'rechazada', 'enviada'].includes(estadoNuevo)) {
+    // Enviar correo informando cambio de estado (aprobada/rechazada/enviada/firmada)
+    if (['aprobada', 'rechazada', 'enviada', 'firmada'].includes(estadoLower)) {
       const email = await obtenerEmailUsuario(updated.user_id, req);
       if (email) {
         const asunto = `Actualización de solicitud #${updated.id}`;
         const cuerpo = `Hola,
 
-Tu solicitud #${updated.id} ha sido ${estadoNuevo}.
+Tu solicitud #${updated.id} ha sido ${estadoLower}.
 Monto: ${formatCLP(updated.monto)}
 Plazo: ${updated.plazo} meses
 Cuota: ${formatCLP(updated.cuota_mensual)}

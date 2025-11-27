@@ -1,19 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const { crear, listar, listarTodas, obtenerPorId, actualizarEstado, eliminar, evaluarSolicitud, listarNotificaciones } = require('../controllers/solicitudController');
+const {
+  crear,
+  listar,
+  listarTodas,
+  obtenerPorId,
+  actualizarEstado,
+  eliminar,
+  evaluarSolicitud,
+  listarNotificaciones
+} = require('../controllers/solicitudController');
 
-// CRUD básico para solicitudes del usuario autenticado
-router.post('/solicitudes', crear);
-router.get('/solicitudes', listar);
-// Solo admin: listar todas las solicitudes
+// Rutas para usuarios autenticados
+router.post('/solicitudes', crear); // Crear solicitud
+router.get('/solicitudes', listar); // Listar solicitudes del usuario
 router.get('/solicitudes/admin', listarTodas);
-router.get('/solicitudes/:id', obtenerPorId);
-router.patch('/solicitudes/:id', actualizarEstado);
-router.delete('/solicitudes/:id', eliminar);
-// Evaluación de solicitud (invoca microservicio evaluación y actualiza estado)
-router.post('/solicitudes/:id/evaluar', evaluarSolicitud);
+router.get('/solicitudes/:id', obtenerPorId); // Obtener solicitud por ID
+router.patch('/solicitudes/:id', actualizarEstado); // Actualizar estado (limitado)
+router.delete('/solicitudes/:id', eliminar); // Eliminar solicitud
 
-// Notificaciones del usuario autenticado
+// Rutas admin
+router.get('/admin/solicitudes', listarTodas); // Listar todas
+router.post('/admin/solicitudes/:id/evaluar', evaluarSolicitud); // Evaluar solicitud
+
+// Notificaciones (usuario)
 router.get('/notificaciones', listarNotificaciones);
+
+
 
 module.exports = router;
