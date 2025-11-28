@@ -2,6 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { pool } = require("../db");
 
+const nodemailer = require("nodemailer");
+const axios = require("axios");
+
 const { sendMailIfConfigured } = require('../utils/mailer');
 
 exports.register = async (req, res) => {
@@ -15,18 +18,19 @@ exports.register = async (req, res) => {
     await pool.query(
       "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)",
       [username, email, hashed, assignedRole]
-    );
-    // enviar correo de bienvenida
+      
+    // 1) Enviar correo de bienvenida
     const subject = 'Cuenta creada correctamente';
     const text = `Hola ${username},\n\nTu cuenta ha sido creada correctamente.\nYa puedes iniciar sesión y continuar con tu solicitud o simulaciones.\n\nSaludos,\nEquipo de Créditos`;
-    await sendMailIfConfigured({ to: email, subject, text });
-    res.status(201).send("Usuario creado");
-  } catch (err) {
-    console.error(err);
-    const msg = err?.detail || err?.message || 'Error en registro';
-    res.status(500).json({ error: msg });
-  }
-};
+    
+    // --- ENVÍO REAL POR SMTP (GMAIL) ---
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "usm.pogware.03@gmail.com", // Gmail real
+        pass: "upfwdgxeptosscrr"  // contraseña de app
+      }
+    });
 
 
 exports.login = async (req, res) => {
