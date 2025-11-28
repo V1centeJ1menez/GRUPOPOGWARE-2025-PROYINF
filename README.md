@@ -25,6 +25,7 @@ Puede acceder a la Wiki mediante el siguiente [enlace](https://github.com/V1cent
 
 * [Video presentación cliente](https://www.youtube.com/watch?v=uc8n8NwmRCM)
 * [Video Explicación de Prototipo Simulación/Solicitud](https://www.youtube.com/watch?v=qvcAIWgAosM) 
+* [Video Resultado de la Pagina](https://1drv.ms/v/c/fba9c92118c3f62e/EXUC7103VftJjWYihBzlFTUBUOnSottMKV3FOn6oOc6Fcw?e=l310RQ)
 
 ## Aspectos técnicos relevantes
 
