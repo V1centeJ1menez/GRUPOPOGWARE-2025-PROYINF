@@ -11,6 +11,7 @@ services:
     depends_on:
       - db_auth
       - mailhog
+      - campana
 
   db_auth:
     image: postgres:16
@@ -126,6 +127,7 @@ services:
       - auth
       - solicitud
       - evaluacion
+      - campana
 
   # ==========================
   # FRONTEND
@@ -212,6 +214,30 @@ services:
       - "1025:1025"   # SMTP
       - "8025:8025"   # Web UI
 
+  # ==========================
+  # CAMPAÑA SERVICE
+  # ==========================
+  campana:
+    build: ./services/campana
+    env_file:
+      - ./services/campana/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db_campana
+      - mailhog
+
+  db_campana:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: campana_db
+    volumes:
+      - db_campana_data:/var/lib/postgresql/data
+    ports:
+      - "5401:5432"
+
 volumes:
   db_auth_data:
   db_simulacion_data:
@@ -220,3 +246,5 @@ volumes:
   db_evaluacion_data:
   db_firma_data:
   db_desembolso_data:
+  db_campana_data:
+
