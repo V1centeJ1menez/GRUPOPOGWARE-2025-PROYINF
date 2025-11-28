@@ -1,20 +1,24 @@
 const express = require("express");
-const { Pool } = require("pg");
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT
-});
-
+// Ruta base de prueba
 app.get("/", (req, res) => {
   res.send("Servicio Campaña funcionando 🚀");
 });
 
-app.listen(process.env.PORT, () => console.log(`Campaña escuchando en puerto ${process.env.PORT}`));
+//  IMPORTAR RUTAS (SIN PASAR pool)
+const campanaRoutes = require("./routes/campanaRoutes");
+app.use("/campana", campanaRoutes());
+
+// Health check (útil para Docker)
+app.get("/health", (req, res) =>
+  res.status(200).json({ status: "OK", service: "campana" })
+);
+
+// Iniciar servidor
+app.listen(process.env.PORT, () =>
+  console.log(`Campaña escuchando en puerto ${process.env.PORT}`)
+);
