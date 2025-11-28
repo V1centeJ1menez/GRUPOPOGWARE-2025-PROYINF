@@ -18,20 +18,51 @@ exports.register = async (req, res) => {
     await pool.query(
       "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)",
       [username, email, hashed, assignedRole]
-      
+    );
+
     // 1) Enviar correo de bienvenida
     const subject = 'Cuenta creada correctamente';
     const text = `Hola ${username},\n\nTu cuenta ha sido creada correctamente.\nYa puedes iniciar sesión y continuar con tu solicitud o simulaciones.\n\nSaludos,\nEquipo de Créditos`;
-    
+
     // --- ENVÍO REAL POR SMTP (GMAIL) ---
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "usm.pogware.03@gmail.com", // Gmail real
-        pass: "upfwdgxeptosscrr"  // contraseña de app
+        user: "usm.pogware.03@gmail.com",
+        pass: "wzxbarbblpbwgymr"
       }
     });
 
+    try {
+      await transporter.sendMail({
+        from: "usm.pogware.03@gmail.com",
+        to: email,
+        subject,
+        text
+      });
+      console.log("Correo enviado vía Gmail correctamente");
+    } catch (err) {
+      console.warn("No se pudo enviar correo vía Gmail:", err.message);
+    }
+
+    // --- ENVÍO OPCIONAL POR MICROSERVICIO CAMPANA ---
+    try {
+      await axios.post("http://campana:3001/campana/bienvenida", {
+        username,
+        email
+      });
+      console.log("Microservicio CAMPANA: correo enviado correctamente");
+    } catch (err) {
+      console.warn("Microservicio CAMPANA no disponible o falló el envío:", err.message);
+    }
+
+    res.status(201).json({ message: "Usuario creado. Se intentó enviar correo." });
+  } catch (err) {
+    console.error(err);
+    const msg = err?.detail || err?.message || "Error en registro";
+    res.status(500).json({ error: msg });
+  }
+};
 
 exports.login = async (req, res) => {
   try {
